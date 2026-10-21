@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+.pytest_cache/
+
+# Local database (each laptop gets its own)
+backend/parksim.db
+
+# Node / React
+node_modules/
+frontend/dist/
+
+# Editors / OS
+.vscode/
+.zed/
+.DS_Store

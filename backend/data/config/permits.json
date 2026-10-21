@@ -1,0 +1,7 @@
+{
+  "_note": "Placeholder. Team needs to decide the final permit list (deck says Student/Faculty, prototype used Freshman/Upperclass/Faculty).",
+  "permits": {
+    "student": { "label": "Student", "allowed_lots": ["student"] },
+    "faculty": { "label": "Faculty", "allowed_lots": ["faculty", "student"] }
+  }
+}

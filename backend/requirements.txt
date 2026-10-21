@@ -1,0 +1,12 @@
+# Install with:  pip install -r requirements.txt
+# Once everything works, run `pip freeze > requirements.txt` so the whole team
+# gets the exact same versions.
+
+fastapi            # the web framework (routes, request/response handling)
+uvicorn[standard]  # the server that actually runs FastAPI
+sqlalchemy         # talks to the SQLite database with Python classes
+pydantic-settings  # reads settings from the .env file
+
+# testing
+pytest
+httpx              # FastAPI's test client needs this

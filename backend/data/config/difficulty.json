@@ -1,0 +1,9 @@
+{
+  "_note": "Placeholder numbers. Tune during playtesting.",
+  "levels": {
+    "1": { "time_limit_s": 120, "max_strikes": 3, "lot_fullness": 0.5, "free_timeout_misses": 1 },
+    "2": { "time_limit_s": 90,  "max_strikes": 3, "lot_fullness": 0.7, "free_timeout_misses": 0 },
+    "3": { "time_limit_s": 60,  "max_strikes": 3, "lot_fullness": 0.85, "free_timeout_misses": 0 }
+  },
+  "speed_tolerance_mph": 5
+}
