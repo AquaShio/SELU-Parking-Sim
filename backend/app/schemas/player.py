@@ -1,8 +1,13 @@
-"""
-schemas/player.py — the shape of player data sent to the front end.
+import datetime
+from typing import Optional
+from pydantic import BaseModel, ConfigDict
 
-Schemas are NOT database tables. They describe the JSON going in and out, and
-FastAPI uses them to reject bad requests automatically.
 
-  PlayerOut: id, created_at, best_score, runs_played
-"""
+class PlayerOut(BaseModel):
+    id: str
+    created_at: datetime.datetime
+    runs_played: int = 0
+    best_score: int = 0
+    last_run_at: Optional[datetime.datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)

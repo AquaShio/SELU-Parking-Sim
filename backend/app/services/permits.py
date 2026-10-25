@@ -1,11 +1,14 @@
-"""
-services/permits.py — the permit check from Scenes 2 and 3.
+from app.services.map_loader import load_permits
 
-What goes here:
-  can_park(permit_type, lot_type) -> bool
-    Uses data/config/permits.json. True = "Permit verified",
-    False = "Permit denied" + strike.
 
-The front end can do the same check for instant feedback, but the server
-double-checks when the run is finished.
-"""
+def can_park(permit_type: str, lot_type: str) -> bool:
+    config = load_permits()
+    permits = config.get("permits", {})
+
+    permit_info = permits.get(permit_type.lower())
+    if not permit_info:
+        # Default fallback
+        return permit_type.lower() == lot_type.lower()
+
+    allowed_lots = [lot.lower() for lot in permit_info.get("allowed_lots", [])]
+    return lot_type.lower() in allowed_lots
