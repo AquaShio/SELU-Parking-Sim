@@ -1,6 +1,11 @@
-"""
-tests/test_health.py — the first test to write.
+from fastapi.testclient import TestClient
+from app.main import app
 
-Use FastAPI's TestClient to call GET /api/health and assert it returns 200
-and {"status": "ok"}. Run all tests with:  pytest
-"""
+client = TestClient(app)
+
+
+def test_health():
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"

@@ -1,0 +1,3056 @@
+[
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.520988,
+    "lng": -90.474663,
+    "mapId": 2329,
+    "id": 1148837,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868509,
+    "name": "N Campus Main Building B",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.521228464131653,
+          -90.47492315984488
+        ],
+        [
+          30.5212224180259,
+          -90.47436635136279
+        ],
+        [
+          30.520756866775145,
+          -90.47435699323722
+        ],
+        [
+          30.520742759126534,
+          -90.47496293187902
+        ],
+        [
+          30.521234510237022,
+          -90.47495357375345
+        ],
+        [
+          30.521228464131653,
+          -90.47492315984488
+        ],
+        [
+          30.521228464131653,
+          -90.47492315984488
+        ],
+        [
+          30.521228464131653,
+          -90.47492315984488
+        ],
+        [
+          30.521228464131653,
+          -90.47492315984488
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.521858,
+    "lng": -90.47448,
+    "mapId": 2329,
+    "id": 1148838,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868510,
+    "name": "Lion Lane @ Bld B",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.522102040098645,
+          -90.47461548412663
+        ],
+        [
+          30.522089752590503,
+          -90.474348769806
+        ],
+        [
+          30.521631347611418,
+          -90.4743214103277
+        ],
+        [
+          30.521614414957938,
+          -90.47463918676762
+        ],
+        [
+          30.52210419861629,
+          -90.47461423126371
+        ],
+        [
+          30.522102040098645,
+          -90.47461548412663
+        ],
+        [
+          30.522102040098645,
+          -90.47461548412663
+        ],
+        [
+          30.522102040098645,
+          -90.47461548412663
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.519642,
+    "lng": -90.47245,
+    "mapId": 2329,
+    "id": 1148839,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868511,
+    "name": "University Center Gate 1",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.51946234316027,
+          -90.47286921164009
+        ],
+        [
+          30.519326878828295,
+          -90.4726005758865
+        ],
+        [
+          30.519801003163394,
+          -90.47203709601362
+        ],
+        [
+          30.519956221937647,
+          -90.47225331503452
+        ],
+        [
+          30.51946234316027,
+          -90.47286921164009
+        ],
+        [
+          30.51946234316027,
+          -90.47286921164009
+        ],
+        [
+          30.51946234316027,
+          -90.47286921164009
+        ],
+        [
+          30.51946234316027,
+          -90.47286921164009
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.524321,
+    "lng": -90.472549,
+    "mapId": 2329,
+    "id": 1148840,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868512,
+    "name": "Physical Plant",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.524340849885178,
+          -90.47303942667486
+        ],
+        [
+          30.524679492888353,
+          -90.47266595745654
+        ],
+        [
+          30.524414222635812,
+          -90.47205333689668
+        ],
+        [
+          30.52395987509567,
+          -90.47250543121339
+        ],
+        [
+          30.524340849885178,
+          -90.47303942667486
+        ],
+        [
+          30.524340849885178,
+          -90.47303942667486
+        ],
+        [
+          30.524340849885178,
+          -90.47303942667486
+        ],
+        [
+          30.524340849885178,
+          -90.47303942667486
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.523367,
+    "lng": -90.471443,
+    "mapId": 2329,
+    "id": 1148841,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868513,
+    "name": "Purchasing",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.5235851324189,
+          -90.4711964503311
+        ],
+        [
+          30.52356896025205,
+          -90.47149105522716
+        ],
+        [
+          30.523300253084457,
+          -90.47168312606662
+        ],
+        [
+          30.523145994930246,
+          -90.47144628683601
+        ],
+        [
+          30.5235851324189,
+          -90.4711964503311
+        ],
+        [
+          30.5235851324189,
+          -90.4711964503311
+        ],
+        [
+          30.5235851324189,
+          -90.4711964503311
+        ],
+        [
+          30.5235851324189,
+          -90.4711964503311
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.519859,
+    "lng": -90.470352,
+    "mapId": 2329,
+    "id": 1148842,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868514,
+    "name": "Alumni Center Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.520366477644004,
+          -90.47073183184435
+        ],
+        [
+          30.519349934517408,
+          -90.47071785514348
+        ],
+        [
+          30.519360254805406,
+          -90.46997908665507
+        ],
+        [
+          30.519551179939725,
+          -90.47008291357774
+        ],
+        [
+          30.519556340072853,
+          -90.4705321646856
+        ],
+        [
+          30.52036991770416,
+          -90.47055612474462
+        ],
+        [
+          30.520366477644004,
+          -90.47073183184435
+        ],
+        [
+          30.520366477644004,
+          -90.47073183184435
+        ],
+        [
+          30.520366477644004,
+          -90.47073183184435
+        ],
+        [
+          30.520366477644004,
+          -90.47073183184435
+        ],
+        [
+          30.520366477644004,
+          -90.47073183184435
+        ],
+        [
+          30.520366477644004,
+          -90.47073183184435
+        ],
+        [
+          30.520366477644004,
+          -90.47073183184435
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.521366,
+    "lng": -90.475861,
+    "mapId": 2329,
+    "id": 1148845,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868517,
+    "name": "Human Resources Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "rectangle",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "bounds": [
+        [
+          30.52118042049129,
+          -90.47618858625171
+        ],
+        [
+          30.52155434902086,
+          -90.4755295831576
+        ]
+      ],
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.517612,
+    "lng": -90.471062,
+    "mapId": 2329,
+    "id": 1148900,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868555,
+    "name": "Pennington Center Lot F/S",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.517855392312512,
+          -90.4713605770709
+        ],
+        [
+          30.517802920281937,
+          -90.47136334569828
+        ],
+        [
+          30.517797355064502,
+          -90.47085391834652
+        ],
+        [
+          30.517368037361607,
+          -90.4708391523366
+        ],
+        [
+          30.51737360260357,
+          -90.47075793928069
+        ],
+        [
+          30.517850622128847,
+          -90.47079116280368
+        ],
+        [
+          30.517855392312512,
+          -90.4713605770709
+        ],
+        [
+          30.517855392312512,
+          -90.4713605770709
+        ],
+        [
+          30.517855392312512,
+          -90.4713605770709
+        ],
+        [
+          30.517855392312512,
+          -90.4713605770709
+        ],
+        [
+          30.517855392312512,
+          -90.4713605770709
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.515764,
+    "lng": -90.467094,
+    "mapId": 2329,
+    "id": 1148901,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868556,
+    "name": "Mane Street",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.515696331336287,
+          -90.46833164100633
+        ],
+        [
+          30.515492749894463,
+          -90.4682763631327
+        ],
+        [
+          30.515763001190194,
+          -90.46639967932441
+        ],
+        [
+          30.515879673322587,
+          -90.4664190265798
+        ],
+        [
+          30.515947005779694,
+          -90.46585863725281
+        ],
+        [
+          30.516035104991545,
+          -90.46586692893368
+        ],
+        [
+          30.516018437578992,
+          -90.46601203335211
+        ],
+        [
+          30.515696331336287,
+          -90.46833164100633
+        ],
+        [
+          30.515696331336287,
+          -90.46833164100633
+        ],
+        [
+          30.515696331336287,
+          -90.46833164100633
+        ],
+        [
+          30.515696331336287,
+          -90.46833164100633
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.515402,
+    "lng": -90.467285,
+    "mapId": 2329,
+    "id": 1148902,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868557,
+    "name": "East D Vickers Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.515574952287935,
+          -90.46766287421718
+        ],
+        [
+          30.51512273605489,
+          -90.4674879004038
+        ],
+        [
+          30.515264608040624,
+          -90.46690636978931
+        ],
+        [
+          30.515681355801462,
+          -90.46699900298482
+        ],
+        [
+          30.515574952287935,
+          -90.46766287421718
+        ],
+        [
+          30.515574952287935,
+          -90.46766287421718
+        ],
+        [
+          30.515574952287935,
+          -90.46766287421718
+        ],
+        [
+          30.515574952287935,
+          -90.46766287421718
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.520466,
+    "lng": -90.474518,
+    "mapId": 2329,
+    "id": 1148903,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868558,
+    "name": "Financial Aid Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.52065887166937,
+          -90.47470865185363
+        ],
+        [
+          30.520264138341574,
+          -90.47471040078763
+        ],
+        [
+          30.520282217765285,
+          -90.47433088202973
+        ],
+        [
+          30.520664898120472,
+          -90.47435186924244
+        ],
+        [
+          30.52065887166937,
+          -90.47470865185363
+        ],
+        [
+          30.52065887166937,
+          -90.47470865185363
+        ],
+        [
+          30.52065887166937,
+          -90.47470865185363
+        ],
+        [
+          30.52065887166937,
+          -90.47470865185363
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.517042,
+    "lng": -90.471512,
+    "mapId": 2329,
+    "id": 1148906,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868561,
+    "name": "North TEC Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.517063386083308,
+          -90.47126998682155
+        ],
+        [
+          30.51724248801517,
+          -90.47128140995144
+        ],
+        [
+          30.517240519864274,
+          -90.4716355269719
+        ],
+        [
+          30.51719230014467,
+          -90.4717531852075
+        ],
+        [
+          30.516841968402247,
+          -90.47173947745168
+        ],
+        [
+          30.516847872880575,
+          -90.47162410384199
+        ],
+        [
+          30.517063386083308,
+          -90.47161724996428
+        ],
+        [
+          30.517063386083308,
+          -90.47126998682155
+        ],
+        [
+          30.517063386083308,
+          -90.47126998682155
+        ],
+        [
+          30.517063386083308,
+          -90.47126998682155
+        ],
+        [
+          30.517063386083308,
+          -90.47126998682155
+        ],
+        [
+          30.517063386083308,
+          -90.47126998682155
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.514042,
+    "lng": -90.469376,
+    "mapId": 2329,
+    "id": 1148929,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868583,
+    "name": "F/S North Union Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.514694463122936,
+          -90.46963265873421
+        ],
+        [
+          30.514687383227795,
+          -90.46911491771048
+        ],
+        [
+          30.51338939380308,
+          -90.46911765708145
+        ],
+        [
+          30.513401193785242,
+          -90.46919983819579
+        ],
+        [
+          30.514635463983637,
+          -90.46919162008446
+        ],
+        [
+          30.514640183915972,
+          -90.46964087684553
+        ],
+        [
+          30.514694463122936,
+          -90.46963265873421
+        ],
+        [
+          30.514694463122936,
+          -90.46963265873421
+        ],
+        [
+          30.514694463122936,
+          -90.46963265873421
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.5,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.5,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.5,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.51325,
+    "lng": -90.469429,
+    "mapId": 2329,
+    "id": 1148954,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868608,
+    "name": "F/S Union Ave",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.513287530878316,
+          -90.46970986758397
+        ],
+        [
+          30.513224094909262,
+          -90.4697200239041
+        ],
+        [
+          30.513213157668716,
+          -90.4691411136454
+        ],
+        [
+          30.513259094069483,
+          -90.46915380904606
+        ],
+        [
+          30.513287530878316,
+          -90.46970986758397
+        ],
+        [
+          30.513287530878316,
+          -90.46970986758397
+        ],
+        [
+          30.513287530878316,
+          -90.46970986758397
+        ],
+        [
+          30.513287530878316,
+          -90.46970986758397
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.513704,
+    "lng": -90.468674,
+    "mapId": 2329,
+    "id": 1148955,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868609,
+    "name": "Student Union Inner Circle",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.513928450596637,
+          -90.46885419759612
+        ],
+        [
+          30.513729394071632,
+          -90.46885419759612
+        ],
+        [
+          30.513541274344007,
+          -90.46871708727177
+        ],
+        [
+          30.51347783853967,
+          -90.46849618730484
+        ],
+        [
+          30.513571898510804,
+          -90.46849364822481
+        ],
+        [
+          30.513633146814627,
+          -90.46868915739091
+        ],
+        [
+          30.513930638029095,
+          -90.46880849415447
+        ],
+        [
+          30.513928450596637,
+          -90.46885419759612
+        ],
+        [
+          30.513928450596637,
+          -90.46885419759612
+        ],
+        [
+          30.513928450596637,
+          -90.46885419759612
+        ],
+        [
+          30.513928450596637,
+          -90.46885419759612
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.513592,
+    "lng": -90.469009,
+    "mapId": 2329,
+    "id": 1148956,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868610,
+    "name": "Student Union Outer Circle",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.513733768944604,
+          -90.46909033204373
+        ],
+        [
+          30.51347783853967,
+          -90.46910048836388
+        ],
+        [
+          30.513445026900712,
+          -90.4689151355179
+        ],
+        [
+          30.513738143817406,
+          -90.46892021367846
+        ],
+        [
+          30.513733768944604,
+          -90.46909033204373
+        ],
+        [
+          30.513733768944604,
+          -90.46909033204373
+        ],
+        [
+          30.513733768944604,
+          -90.46909033204373
+        ],
+        [
+          30.513733768944604,
+          -90.46909033204373
+        ],
+        [
+          30.513733768944604,
+          -90.46909033204373
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.515627,
+    "lng": -90.471733,
+    "mapId": 2329,
+    "id": 1148958,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868612,
+    "name": "TEC Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.51507190716866,
+          -90.4718379440742
+        ],
+        [
+          30.515071878775714,
+          -90.47158659456552
+        ],
+        [
+          30.516012949000725,
+          -90.47159111617769
+        ],
+        [
+          30.516015296564007,
+          -90.47183581793686
+        ],
+        [
+          30.51510695054276,
+          -90.47185150319746
+        ],
+        [
+          30.51510695054276,
+          -90.47185150319746
+        ],
+        [
+          30.51510695054276,
+          -90.47185150319746
+        ],
+        [
+          30.51510695054276,
+          -90.47185150319746
+        ],
+        [
+          30.51510695054276,
+          -90.47185150319746
+        ],
+        [
+          30.51507190716866,
+          -90.4718379440742
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.510715,
+    "lng": -90.466904,
+    "mapId": 2329,
+    "id": 1148964,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868617,
+    "name": "Pine Street",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.510070899280137,
+          -90.46674924010637
+        ],
+        [
+          30.510125407917485,
+          -90.46657335027766
+        ],
+        [
+          30.510934906983522,
+          -90.46678965780113
+        ],
+        [
+          30.51103678445032,
+          -90.4667499663181
+        ],
+        [
+          30.511138661906728,
+          -90.4667023773943
+        ],
+        [
+          30.51123683299929,
+          -90.46674056691226
+        ],
+        [
+          30.511326687520345,
+          -90.4668656354287
+        ],
+        [
+          30.511343032582772,
+          -90.46698771500239
+        ],
+        [
+          30.511306473700962,
+          -90.46709127207338
+        ],
+        [
+          30.511251204171074,
+          -90.4671837175342
+        ],
+        [
+          30.511182813345393,
+          -90.46719575696977
+        ],
+        [
+          30.51109060893546,
+          -90.46720582204459
+        ],
+        [
+          30.51100204663564,
+          -90.4671521416436
+        ],
+        [
+          30.51091898203333,
+          -90.46705432398043
+        ],
+        [
+          30.510853284047528,
+          -90.46699439183539
+        ],
+        [
+          30.510070899280137,
+          -90.46674924010637
+        ],
+        [
+          30.510070899280137,
+          -90.46674924010637
+        ],
+        [
+          30.510070899280137,
+          -90.46674924010637
+        ],
+        [
+          30.510070899280137,
+          -90.46674924010637
+        ],
+        [
+          30.510070899280137,
+          -90.46674924010637
+        ],
+        [
+          30.510070899280137,
+          -90.46674924010637
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.509684,
+    "lng": -90.46833,
+    "mapId": 2329,
+    "id": 1148996,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868647,
+    "name": "Dakota @ Dugas",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.50961209551417,
+          -90.46879100840424
+        ],
+        [
+          30.509547255581737,
+          -90.46875174225119
+        ],
+        [
+          30.509761509107094,
+          -90.46786825380522
+        ],
+        [
+          30.509817891535405,
+          -90.46791079213764
+        ],
+        [
+          30.50961209551417,
+          -90.46879100840424
+        ],
+        [
+          30.50961209551417,
+          -90.46879100840424
+        ],
+        [
+          30.50961209551417,
+          -90.46879100840424
+        ],
+        [
+          30.50961209551417,
+          -90.46879100840424
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.509933,
+    "lng": -90.467224,
+    "mapId": 2329,
+    "id": 1148997,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868648,
+    "name": "Dakota @ The Foundation Center",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.509843263616787,
+          -90.46772264182003
+        ],
+        [
+          30.509799567249132,
+          -90.46770791701256
+        ],
+        [
+          30.510022277563294,
+          -90.46672462709428
+        ],
+        [
+          30.510068792944168,
+          -90.46672299100491
+        ],
+        [
+          30.509843263616787,
+          -90.46772264182003
+        ],
+        [
+          30.509843263616787,
+          -90.46772264182003
+        ],
+        [
+          30.509843263616787,
+          -90.46772264182003
+        ],
+        [
+          30.509843263616787,
+          -90.46772264182003
+        ],
+        [
+          30.509843263616787,
+          -90.46772264182003
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.515011,
+    "lng": -90.466103,
+    "mapId": 2329,
+    "id": 1149000,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868651,
+    "name": "Fayard Hall Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.51541352195011,
+          -90.46646852493471
+        ],
+        [
+          30.51552578754979,
+          -90.46585289642337
+        ],
+        [
+          30.5145864476643,
+          -90.46574112067434
+        ],
+        [
+          30.514495370768955,
+          -90.46614672207163
+        ],
+        [
+          30.514997619295343,
+          -90.46634372164405
+        ],
+        [
+          30.51541352195011,
+          -90.46646852493471
+        ],
+        [
+          30.51541352195011,
+          -90.46646852493471
+        ],
+        [
+          30.51541352195011,
+          -90.46646852493471
+        ],
+        [
+          30.51541352195011,
+          -90.46646852493471
+        ],
+        [
+          30.51541352195011,
+          -90.46646852493471
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.514055,
+    "lng": -90.465942,
+    "mapId": 2329,
+    "id": 1149020,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868670,
+    "name": "East Student Union Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.51426876897898,
+          -90.46635582207713
+        ],
+        [
+          30.513754609930913,
+          -90.46618916432588
+        ],
+        [
+          30.513878784441218,
+          -90.46579954552921
+        ],
+        [
+          30.51397385544226,
+          -90.46583107537388
+        ],
+        [
+          30.514022361019784,
+          -90.46552928971606
+        ],
+        [
+          30.51415041562744,
+          -90.46561261859192
+        ],
+        [
+          30.5140786274592,
+          -90.46591665638147
+        ],
+        [
+          30.51435801895157,
+          -90.46601575017942
+        ],
+        [
+          30.51426876897898,
+          -90.46635582207713
+        ],
+        [
+          30.51426876897898,
+          -90.46635582207713
+        ],
+        [
+          30.51426876897898,
+          -90.46635582207713
+        ],
+        [
+          30.51426876897898,
+          -90.46635582207713
+        ],
+        [
+          30.51426876897898,
+          -90.46635582207713
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.513239,
+    "lng": -90.465546,
+    "mapId": 2329,
+    "id": 1149021,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868671,
+    "name": "East McClimans Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.513708180350463,
+          -90.46586608737114
+        ],
+        [
+          30.51377034818087,
+          -90.46552020893554
+        ],
+        [
+          30.513282649963465,
+          -90.46536468805617
+        ],
+        [
+          30.512786376821182,
+          -90.4652216088474
+        ],
+        [
+          30.512707058434046,
+          -90.46559983562575
+        ],
+        [
+          30.513708180350463,
+          -90.46586608737114
+        ],
+        [
+          30.513708180350463,
+          -90.46586608737114
+        ],
+        [
+          30.513708180350463,
+          -90.46586608737114
+        ],
+        [
+          30.513708180350463,
+          -90.46586608737114
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.512215,
+    "lng": -90.469566,
+    "mapId": 2329,
+    "id": 1149022,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868672,
+    "name": "West Dyson Hall Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.51240285264251,
+          -90.46989634578635
+        ],
+        [
+          30.512035435486723,
+          -90.46989995998152
+        ],
+        [
+          30.51202453749893,
+          -90.46922952677004
+        ],
+        [
+          30.51240285264251,
+          -90.46922771967283
+        ],
+        [
+          30.51240285264251,
+          -90.46989634578635
+        ],
+        [
+          30.51240285264251,
+          -90.46989634578635
+        ],
+        [
+          30.51240285264251,
+          -90.46989634578635
+        ],
+        [
+          30.51240285264251,
+          -90.46989634578635
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.511992,
+    "lng": -90.47023,
+    "mapId": 2329,
+    "id": 1149024,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868674,
+    "name": "Ned Mcgehee @ Garrett Hall",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.511951549183394,
+          -90.47059204506775
+        ],
+        [
+          30.511959086647494,
+          -90.46986879469475
+        ],
+        [
+          30.512031948767117,
+          -90.46987462735895
+        ],
+        [
+          30.512020642579685,
+          -90.47058767056932
+        ],
+        [
+          30.511951549183394,
+          -90.47059204506775
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.512266,
+    "lng": -90.46727,
+    "mapId": 2329,
+    "id": 1149025,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868675,
+    "name": "Friendship Circle",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.51184297731139,
+          -90.4681862637832
+        ],
+        [
+          30.511861287886674,
+          -90.46732258941589
+        ],
+        [
+          30.511995477311885,
+          -90.46688080034794
+        ],
+        [
+          30.512200398810833,
+          -90.46657102936379
+        ],
+        [
+          30.512307624966027,
+          -90.4663552959998
+        ],
+        [
+          30.512395788673828,
+          -90.46642997293326
+        ],
+        [
+          30.51248037795397,
+          -90.46651156439817
+        ],
+        [
+          30.51269125533318,
+          -90.46660975073752
+        ],
+        [
+          30.512648365225886,
+          -90.46669272510762
+        ],
+        [
+          30.512569973609644,
+          -90.46727071394825
+        ],
+        [
+          30.51245623761723,
+          -90.46777051913239
+        ],
+        [
+          30.51238149186844,
+          -90.46797329623101
+        ],
+        [
+          30.512203396495423,
+          -90.46812536294499
+        ],
+        [
+          30.51184297731139,
+          -90.4681862637832
+        ],
+        [
+          30.51184297731139,
+          -90.4681862637832
+        ],
+        [
+          30.51184297731139,
+          -90.4681862637832
+        ],
+        [
+          30.51184297731139,
+          -90.4681862637832
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.511589,
+    "lng": -90.465164,
+    "mapId": 2329,
+    "id": 1149026,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868676,
+    "name": "Azalea Circle",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.511976404155945,
+          -90.46496626177466
+        ],
+        [
+          30.51183981570091,
+          -90.4655230953578
+        ],
+        [
+          30.51145670071797,
+          -90.46559269955593
+        ],
+        [
+          30.5112035108574,
+          -90.46530654896455
+        ],
+        [
+          30.51131844581036,
+          -90.4647419815814
+        ],
+        [
+          30.511976404155945,
+          -90.46496626177466
+        ],
+        [
+          30.511976404155945,
+          -90.46496626177466
+        ],
+        [
+          30.511976404155945,
+          -90.46496626177466
+        ],
+        [
+          30.511976404155945,
+          -90.46496626177466
+        ],
+        [
+          30.511976404155945,
+          -90.46496626177466
+        ],
+        [
+          30.511976404155945,
+          -90.46496626177466
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.511095,
+    "lng": -90.464622,
+    "mapId": 2329,
+    "id": 1149027,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868677,
+    "name": "N Oak @ Science Tech",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.511252619764107,
+          -90.46470779266613
+        ],
+        [
+          30.510922805833445,
+          -90.46459758601921
+        ],
+        [
+          30.510932800211833,
+          -90.4645434494211
+        ],
+        [
+          30.51126927700335,
+          -90.46465172261773
+        ],
+        [
+          30.511252619764107,
+          -90.46470779266613
+        ],
+        [
+          30.511252619764107,
+          -90.46470779266613
+        ],
+        [
+          30.511252619764107,
+          -90.46470779266613
+        ],
+        [
+          30.511252619764107,
+          -90.46470779266613
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.510756,
+    "lng": -90.46553,
+    "mapId": 2329,
+    "id": 1149030,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868679,
+    "name": "Science and Technology Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.51043909305882,
+          -90.46565911314248
+        ],
+        [
+          30.511002692174472,
+          -90.4658069095446
+        ],
+        [
+          30.51107157628752,
+          -90.46535625166197
+        ],
+        [
+          30.510681232338783,
+          -90.46524722152864
+        ],
+        [
+          30.510629047199913,
+          -90.46551616252351
+        ],
+        [
+          30.51047666643497,
+          -90.4654652817948
+        ],
+        [
+          30.51043909305882,
+          -90.46565911314248
+        ],
+        [
+          30.51043909305882,
+          -90.46565911314248
+        ],
+        [
+          30.51043909305882,
+          -90.46565911314248
+        ],
+        [
+          30.51043909305882,
+          -90.46565911314248
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.510424,
+    "lng": -90.469444,
+    "mapId": 2329,
+    "id": 1149037,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868684,
+    "name": "Galloway @ Parking Garage",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.510397630188294,
+          -90.46970779951212
+        ],
+        [
+          30.510339498500315,
+          -90.4696845324874
+        ],
+        [
+          30.510451752763103,
+          -90.46918661815944
+        ],
+        [
+          30.510505875307857,
+          -90.46922151869627
+        ],
+        [
+          30.510397630188294,
+          -90.46970779951212
+        ],
+        [
+          30.510397630188294,
+          -90.46970779951212
+        ],
+        [
+          30.510397630188294,
+          -90.46970779951212
+        ],
+        [
+          30.510397630188294,
+          -90.46970779951212
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.509909,
+    "lng": -90.468987,
+    "mapId": 2329,
+    "id": 1149038,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868685,
+    "name": "Galloway Drive",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.510195884537893,
+          -90.46916120590772
+        ],
+        [
+          30.51023887219678,
+          -90.46892079607908
+        ],
+        [
+          30.509863706532727,
+          -90.46880966323357
+        ],
+        [
+          30.509842212622743,
+          -90.4688822397856
+        ],
+        [
+          30.50960382530195,
+          -90.46881873530242
+        ],
+        [
+          30.509576469342278,
+          -90.46895481633763
+        ],
+        [
+          30.510195884537893,
+          -90.46916120590772
+        ],
+        [
+          30.510195884537893,
+          -90.46916120590772
+        ],
+        [
+          30.510195884537893,
+          -90.46916120590772
+        ],
+        [
+          30.510195884537893,
+          -90.46916120590772
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.510241,
+    "lng": -90.467857,
+    "mapId": 2329,
+    "id": 1149039,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868686,
+    "name": "East Stadium Lot",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.509830062898928,
+          -90.46791562058159
+        ],
+        [
+          30.510217316415037,
+          -90.46801907456042
+        ],
+        [
+          30.510421699593508,
+          -90.46801907456042
+        ],
+        [
+          30.510607641810893,
+          -90.46797983339616
+        ],
+        [
+          30.510649133001166,
+          -90.4678139502924
+        ],
+        [
+          30.51046626428966,
+          -90.46775865592447
+        ],
+        [
+          30.510120503180318,
+          -90.46773011689572
+        ],
+        [
+          30.509843893408288,
+          -90.46769979417806
+        ],
+        [
+          30.509831599621933,
+          -90.46780681553537
+        ],
+        [
+          30.509830062898928,
+          -90.46791562058159
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  },
+  {
+    "catId": 104746,
+    "altitude": 0,
+    "lat": 30.510452,
+    "lng": -90.46505,
+    "mapId": 2329,
+    "id": 1149090,
+    "weight": 0,
+    "icon": "",
+    "iconRotation": null,
+    "level": [
+      0
+    ],
+    "location_open": "",
+    "locationType": "parking",
+    "marker_feed": {
+      "rate": 0
+    },
+    "mrkId": 868724,
+    "name": "Dakota @ Science Tech",
+    "reference": "",
+    "schedule": "",
+    "shape": {
+      "type": "polygon",
+      "color": "#ff0000",
+      "opacity": 0.8,
+      "weight": 4,
+      "colorNormal": "#ff0000",
+      "opacityNormal": 0.8,
+      "weightNormal": 4,
+      "colorHover": "#ff0000",
+      "opacityHover": 0.8,
+      "weightHover": 4,
+      "strokeType": "solid",
+      "paths": [
+        [
+          30.510381025743612,
+          -90.46543407120322
+        ],
+        [
+          30.510562975135542,
+          -90.4646654550094
+        ],
+        [
+          30.510513988794585,
+          -90.46465936293929
+        ],
+        [
+          30.510342536405773,
+          -90.46537619653616
+        ],
+        [
+          30.510381025743612,
+          -90.46543407120322
+        ],
+        [
+          30.510381025743612,
+          -90.46543407120322
+        ],
+        [
+          30.510381025743612,
+          -90.46543407120322
+        ],
+        [
+          30.510381025743612,
+          -90.46543407120322
+        ]
+      ],
+      "fillColor": "#ff0000",
+      "fillOpacity": 0.4,
+      "fillColorNormal": "#ff0000",
+      "fillOpacityNormal": 0.4,
+      "fillColorHover": "#ff0000",
+      "fillOpacityHover": 0.4,
+      "icon": false,
+      "textLabel": false,
+      "position": false,
+      "dashed": false
+    },
+    "minZoom": null,
+    "maxZoom": null,
+    "geojson_feature": null,
+    "iconSize": 35,
+    "showIcon": 0,
+    "showText": 0
+  }
+]

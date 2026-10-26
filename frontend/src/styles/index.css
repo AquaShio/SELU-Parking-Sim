@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+:root {
+  --selu-green: #00573D;
+  --selu-green-light: #057854;
+  --selu-green-dark: #003626;
+  --selu-gold: #FFC72C;
+  --selu-gold-hover: #E5B224;
+  --selu-gold-dark: #997200;
+  --selu-accent: #10B981;
+  --selu-danger: #EF4444;
+  --selu-warning: #F59E0B;
+  --selu-surface: rgba(15, 23, 42, 0.85);
+  --selu-border: rgba(255, 255, 255, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body, html, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #0b1118;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #f8fafc;
+}
+
+.font-chakra {
+  font-family: 'Chakra Petch', sans-serif;
+}
+
+.font-mono-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Glassmorphism panel */
+.selu-panel {
+  background: rgba(11, 25, 20, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 199, 44, 0.25);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 20px -2px rgba(0, 87, 61, 0.3);
+}
+
+.selu-btn-primary {
+  background: linear-gradient(135deg, #FFC72C 0%, #E5B224 100%);
+  color: #003626;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(255, 199, 44, 0.35);
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.selu-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 199, 44, 0.5);
+  background: linear-gradient(135deg, #FFD255 0%, #FFC72C 100%);
+}
+
+.selu-btn-primary:active {
+  transform: translateY(0);
+}
+
+.selu-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.selu-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 199, 44, 0.4);
+}
+
+@keyframes strike-flash {
+  0% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.3); filter: brightness(1.6); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+.strike-alert {
+  animation: strike-flash 0.4s ease-out;
+}

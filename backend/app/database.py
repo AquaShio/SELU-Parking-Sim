@@ -1,13 +1,24 @@
-"""
-database.py — the SQLite connection.
+from collections.abc import Generator
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
+from app.config import settings
 
-What goes here:
-  - engine:        SQLAlchemy engine built from settings.database_url
-  - SessionLocal:  a factory that makes a DB session per request
-  - Base:          the parent class every table in models/ inherits from
-  - get_db():      a FastAPI dependency that opens a session, yields it to the
-                   route, then closes it
+# SQLite connection configuration
+connect_args = {"check_same_thread": False} if "sqlite" in settings.database_url else {}
 
-SQLite is just a file (parksim.db) next to this folder, so there's nothing to
-install for the demo laptop.
-"""
+engine = create_engine(
+    settings.database_url,
+    connect_args=connect_args,
+)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+
+def get_db() -> Generator[Session, None, None]:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

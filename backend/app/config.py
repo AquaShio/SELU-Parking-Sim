@@ -1,10 +1,17 @@
-"""
-config.py — one place for settings.
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-What goes here:
-  A Settings class (from pydantic_settings) that reads .env:
-    database_url, frontend_origin, cookie_name, cookie_max_age_days
-  and one shared `settings = Settings()` object the rest of the app imports.
 
-Why: so nothing like "localhost:5173" or the DB path is hard-coded in 5 places.
-"""
+class Settings(BaseSettings):
+    database_url: str = "sqlite:///./parksim.db"
+    frontend_origin: str = "http://localhost:5173"
+    cookie_name: str = "parksim_player"
+    cookie_max_age_days: int = 365
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+
+settings = Settings()

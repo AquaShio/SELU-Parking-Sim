@@ -1,9 +1,32 @@
 {
-  "_note": "Placeholder numbers. Tune during playtesting.",
   "levels": {
-    "1": { "time_limit_s": 120, "max_strikes": 3, "lot_fullness": 0.5, "free_timeout_misses": 1 },
-    "2": { "time_limit_s": 90,  "max_strikes": 3, "lot_fullness": 0.7, "free_timeout_misses": 0 },
-    "3": { "time_limit_s": 60,  "max_strikes": 3, "lot_fullness": 0.85, "free_timeout_misses": 0 }
+    "1": {
+      "name": "Standard Campus Morning",
+      "time_limit_s": 120,
+      "max_strikes": 3,
+      "lot_fullness": 0.45,
+      "pedestrian_count": 8,
+      "traffic_count": 4,
+      "speed_tolerance_mph": 5
+    },
+    "2": {
+      "name": "Midday Rush Hour",
+      "time_limit_s": 90,
+      "max_strikes": 3,
+      "lot_fullness": 0.70,
+      "pedestrian_count": 14,
+      "traffic_count": 8,
+      "speed_tolerance_mph": 4
+    },
+    "3": {
+      "name": "Rainy Exam Day Panic",
+      "time_limit_s": 65,
+      "max_strikes": 3,
+      "lot_fullness": 0.88,
+      "pedestrian_count": 20,
+      "traffic_count": 12,
+      "speed_tolerance_mph": 3
+    }
   },
   "speed_tolerance_mph": 5
 }

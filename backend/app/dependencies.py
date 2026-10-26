@@ -1,13 +1,42 @@
-"""
-dependencies.py — small reusable helpers routes can ask for.
+import datetime
+import uuid
+from fastapi import Depends, Request, Response
+from sqlalchemy.orm import Session
+from app.config import settings
+from app.database import get_db
+from app.models.player import Player
 
-What goes here:
-  get_current_player(request, response, db)
-    1. Look for the player cookie (settings.cookie_name) on the request.
-    2. If it exists and matches a Player row, return that player.
-    3. If not, create a new Player with a random UUID, set the cookie on the
-       response (httponly, samesite="lax"), and return the new player.
 
-This is how "saved as a cookie" works: the cookie only stores the player's ID,
-and the real data lives in the database under that ID.
-"""
+def get_current_player(
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+) -> Player:
+    cookie_id = request.cookies.get(settings.cookie_name)
+    player = None
+
+    if cookie_id:
+        player = db.query(Player).filter(Player.id == cookie_id).first()
+
+    now = datetime.datetime.now(datetime.timezone.utc)
+    if player:
+        player.last_seen = now
+        db.commit()
+    else:
+        new_id = str(uuid.uuid4())
+        player = Player(id=new_id, created_at=now, last_seen=now)
+        db.add(player)
+        db.commit()
+        db.refresh(player)
+
+        max_age_seconds = settings.cookie_max_age_days * 24 * 60 * 60
+        response.set_cookie(
+            key=settings.cookie_name,
+            value=new_id,
+            max_age=max_age_seconds,
+            httponly=False,
+            samesite="lax",
+            path="/",
+        )
+
+    return player
