@@ -142,10 +142,13 @@ export class VehiclePhysics {
   update(dt, environment = null) {
     if (dt <= 0 || dt > 0.1) dt = 0.016;
 
-    // 1. Steering
+    // 1. Steering (speed-sensitive: full lock up to ~8 mph, tapering to 45% at 30 mph)
+    const steerTaper = Math.min(1, Math.max(0, (Math.abs(this.speed) - 60) / (225 - 60)));
+    const steerScale = 1 - 0.55 * steerTaper;
+    const maxSteer = this.maxSteerAngle * steerScale;
     if (this.inputs.steer !== 0) {
-      this.steerAngle += this.inputs.steer * this.steerSpeed * dt;
-      this.steerAngle = Math.max(-this.maxSteerAngle, Math.min(this.maxSteerAngle, this.steerAngle));
+      this.steerAngle += this.inputs.steer * this.steerSpeed * steerScale * dt;
+      this.steerAngle = Math.max(-maxSteer, Math.min(maxSteer, this.steerAngle));
     } else {
       if (Math.abs(this.steerAngle) > 0.01) {
         const sign = Math.sign(this.steerAngle);
