@@ -278,6 +278,7 @@ export default function App() {
     let simTime = 0;
     let speedViolationTimer = 0;
     let holdParkTimer = 0;
+    const PARK_HOLD_SECONDS = 2.5; // Time stopped in a stall for the parking meter to fill
     let lastUiSec = Math.ceil(timeRemainingRef.current);
     let collisionStrikeCooldown = 0;
     let bumpToastCooldown = 0;
@@ -446,9 +447,9 @@ export default function App() {
                   if (isPermitLegal) {
                     eligibleStallFound = stall;
                     isDocking = true;
-                    // Only eligible once fully stopped, so the meter fills at the stationary rate
-                    holdParkTimer += dt * 1.6;
-                    const progress = Math.min(1.0, holdParkTimer / 0.95);
+                    // Only eligible once fully stopped; meter fills over PARK_HOLD_SECONDS
+                    holdParkTimer += dt;
+                    const progress = Math.min(1.0, holdParkTimer / PARK_HOLD_SECONDS);
                     setParkingProgress(progress);
 
                     if (progress >= 1.0) {
@@ -477,7 +478,7 @@ export default function App() {
         if (!isDocking) {
           // Smooth decay instead of snapping to 0 on single frame jitter
           holdParkTimer = Math.max(0, holdParkTimer - dt * 2.0);
-          setParkingProgress(Math.min(1.0, holdParkTimer / 0.95));
+          setParkingProgress(Math.min(1.0, holdParkTimer / PARK_HOLD_SECONDS));
         }
 
         // 7. Destination Compass Math (1 px at Zoom 19 ~= 0.422 ft)
@@ -509,7 +510,7 @@ export default function App() {
           v,
           activePermit,
           activeDestination,
-          Math.min(1.0, holdParkTimer / 0.95),
+          Math.min(1.0, holdParkTimer / PARK_HOLD_SECONDS),
           eligibleStallFound
         );
       }
