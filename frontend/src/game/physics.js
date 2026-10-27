@@ -110,6 +110,7 @@ export class VehiclePhysics {
     this.gear = 'D';
     this.isBraking = false;
     this.isDrifting = false;
+    this.isOffroad = false; // Two or more corners on grass / off-road surface
     this.reverseHoldTimer = 0;
     this.brakeFromMotion = false; // Current brake press began while moving forward
   }
@@ -123,6 +124,7 @@ export class VehiclePhysics {
     this.gear = 'D';
     this.isBraking = false;
     this.isDrifting = false;
+    this.isOffroad = false;
     this.cruiseActive = false;
     this.cruiseTargetSpeed = 0;
     this.reverseHoldTimer = 0;
@@ -310,9 +312,9 @@ export class VehiclePhysics {
         }
       }
 
-      // Trees are on grass landscaping: all off-road collisions are handled as grass/curb collisions below
+      // Trees are on grass landscaping: driving onto grass is handled as an off-road strike below
 
-      // B. Solid Building & Off-Road Curb / Grass Island Collision
+      // B. Solid Building Collision
       if (environment.checkFootprintCollision) {
         const check = environment.checkFootprintCollision(this.getPerimeterPoints());
         if (check.collided) {
@@ -338,7 +340,7 @@ export class VehiclePhysics {
 
           if (!collisionEvent && impactMph >= 3.5) {
             collisionEvent = {
-              type: check.reason || 'curb_or_grass',
+              type: check.reason,
               impactMph,
               x: check.point ? check.point.x : this.x,
               y: check.point ? check.point.y : this.y
@@ -348,6 +350,9 @@ export class VehiclePhysics {
         }
       }
     }
+
+    // C. Grass / off-road surface: drivable, but flagged so a strike can be issued
+    this.isOffroad = Boolean(environment?.countOffroadPoints && environment.countOffroadPoints(this.getCorners()) >= 2);
 
     return collisionEvent;
   }

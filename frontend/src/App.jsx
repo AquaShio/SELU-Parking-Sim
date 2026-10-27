@@ -281,7 +281,8 @@ export default function App() {
     const PARK_HOLD_SECONDS = 2.5; // Time stopped in a stall for the parking meter to fill
     let lastUiSec = Math.ceil(timeRemainingRef.current);
     let collisionStrikeCooldown = 0;
-    let bumpToastCooldown = 0;
+    let offroadExcursion = false; // Strike already issued for the current trip off the pavement
+    let onRoadTimer = 0;
     let eligibleStallFound = null;
 
     if (!rendererRef.current && canvasRef.current) {
@@ -296,7 +297,8 @@ export default function App() {
       speedLimitMph: 20,
       getObstacleCarOBBs: (wx, wy, rad) => rendererRef.current.getObstacleCarOBBs(wx, wy, rad),
       checkTreeCollision: (wx, wy, rad) => rendererRef.current.checkTreeCollision(wx, wy, rad),
-      checkFootprintCollision: (pts) => rendererRef.current.checkFootprintCollision(pts)
+      checkFootprintCollision: (pts) => rendererRef.current.checkFootprintCollision(pts),
+      countOffroadPoints: (pts) => rendererRef.current.countOffroadPoints(pts)
     };
 
     function issueStrike(eventType, details, message) {
@@ -318,7 +320,6 @@ export default function App() {
       simTime += dt;
 
       if (collisionStrikeCooldown > 0) collisionStrikeCooldown = Math.max(0, collisionStrikeCooldown - dt);
-      if (bumpToastCooldown > 0) bumpToastCooldown = Math.max(0, bumpToastCooldown - dt);
 
       const v = vehicleRef.current;
       const renderer = rendererRef.current;
@@ -363,21 +364,24 @@ export default function App() {
                 'Building Collision! Stay on campus roadways — Strike Issued'
               );
             }
-          } else if (collisionEvent.type === 'curb_or_grass') {
-            renderer.triggerImpactEffect(collisionEvent.x, collisionEvent.y);
-            sounds.playCurbThud();
-            if (collisionEvent.impactMph >= 10.5 && collisionStrikeCooldown <= 0) {
-              collisionStrikeCooldown = 1.6;
-              issueStrike(
-                'offroad_curb_strike',
-                { impact_mph: Math.round(collisionEvent.impactMph) },
-                'Hard Curb / Grass Impact! Keep on paved asphalt — Strike Issued'
-              );
-            } else if (bumpToastCooldown <= 0) {
-              bumpToastCooldown = 1.2;
-              showToast('Curb / Grass Boundary — Stay on paved asphalt', 'warning', 1800);
-            }
           }
+        }
+
+        // Off-road: driving on grass is allowed, but each trip off the pavement costs one strike.
+        // The trip ends after 1s back on pavement, so skimming an edge doesn't stack strikes.
+        if (v.isOffroad) {
+          onRoadTimer = 0;
+          if (!offroadExcursion) {
+            offroadExcursion = true;
+            issueStrike(
+              'offroad_strike',
+              { speed: Math.round(v.getSpeedMph()) },
+              'Off-Road! Keep on paved roads and lots — Strike Issued'
+            );
+          }
+        } else if (offroadExcursion) {
+          onRoadTimer += dt;
+          if (onRoadTimer >= 1.0) offroadExcursion = false;
         }
 
         // 2. Audio update

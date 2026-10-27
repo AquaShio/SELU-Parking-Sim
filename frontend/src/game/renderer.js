@@ -496,7 +496,7 @@ export class GameRenderer {
   }
 
   checkTreeCollision(wx, wy, radius = 9.0) {
-    // Trees reside exclusively on campus grass landscaping; off-road driving is handled strictly via grass collision
+    // Trees reside exclusively on campus grass landscaping; driving onto grass is handled as an off-road strike
     return null;
   }
 
@@ -516,14 +516,16 @@ export class GameRenderer {
       }
     }
 
-    // 2. Pixel surface mask (blocks grass, curbs, islands, sidewalks)
-    for (const pt of perimeterPoints) {
-      if (!this.isWorldPointDrivable(pt.x, pt.y)) {
-        return { collided: true, reason: 'curb_or_grass', point: pt };
-      }
-    }
-
     return { collided: false };
+  }
+
+  // Number of points sitting on grass / off-road surfaces (drivable, but penalized)
+  countOffroadPoints(points) {
+    let count = 0;
+    for (const pt of points) {
+      if (!this.isWorldPointDrivable(pt.x, pt.y)) count++;
+    }
+    return count;
   }
 
   getObstacleCarOBBs(wx, wy, radius = 68) {
