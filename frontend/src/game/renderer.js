@@ -37,7 +37,9 @@ export class GameRenderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
-    this.camera = { x: 9248.7, y: 9788.8, zoom: 1.65, shake: 0 };
+    // heading: smoothed vehicle angle the view follows (null = snap on next frame)
+    // rotation: canvas rotation applied so the vehicle always points up the screen
+    this.camera = { x: 9248.7, y: 9788.8, zoom: 1.65, shake: 0, heading: null, rotation: 0, viewRadius: 750 };
     this.parkedCarColors = [
       '#1e293b', '#2563eb', '#dc2626', '#f1f5f9',
       '#0f766e', '#b45309', '#475569', '#334155', '#7c2d12'
@@ -78,6 +80,7 @@ export class GameRenderer {
     const sy = spawnPoint?.y ?? map?.spawn?.y ?? 9788.8;
     this.camera.x = sx;
     this.camera.y = sy;
+    this.camera.heading = null;
 
     // Populate spatial hash grid for trees (128px cells)
     this.treeGrid.clear();
@@ -788,6 +791,17 @@ export class GameRenderer {
     this.camera.x += (vehicle.x - this.camera.x) * 0.16;
     this.camera.y += (vehicle.y - this.camera.y) * 0.16;
 
+    // Rotate the view with the vehicle so it always points up the screen
+    if (this.camera.heading === null) {
+      this.camera.heading = vehicle.angle;
+    } else {
+      const headingDiff = Math.atan2(Math.sin(vehicle.angle - this.camera.heading), Math.cos(vehicle.angle - this.camera.heading));
+      this.camera.heading += headingDiff * 0.14;
+    }
+    this.camera.rotation = -Math.PI / 2 - this.camera.heading;
+    // Any rotation can expose the viewport's corners, so cull by its half-diagonal
+    this.camera.viewRadius = Math.hypot(width, height) / 2 / this.camera.zoom + 40;
+
     const shakeX = this.camera.shake > 0 ? (Math.random() - 0.5) * this.camera.shake : 0;
     const shakeY = this.camera.shake > 0 ? (Math.random() - 0.5) * this.camera.shake : 0;
 
@@ -795,6 +809,7 @@ export class GameRenderer {
     ctx.clearRect(0, 0, width, height);
 
     ctx.translate(width / 2 + shakeX, height / 2 + shakeY);
+    ctx.rotate(this.camera.rotation);
     ctx.scale(this.camera.zoom, this.camera.zoom);
     ctx.translate(-this.camera.x, -this.camera.y);
 
@@ -838,8 +853,8 @@ export class GameRenderer {
     ctx.fillStyle = COLORS.grassFallback;
     ctx.fillRect(-512, -512, worldW + 1024, worldH + 1024);
 
-    const halfW = (viewWidth / 2) / this.camera.zoom + 512;
-    const halfH = (viewHeight / 2) / this.camera.zoom + 512;
+    const halfW = this.camera.viewRadius + 512;
+    const halfH = this.camera.viewRadius + 512;
 
     const minWx = this.camera.x - halfW;
     const maxWx = this.camera.x + halfW;
@@ -911,7 +926,7 @@ export class GameRenderer {
         const cx = stall.x;
         const cy = stall.y;
 
-        if (Math.abs(cx - this.camera.x) > 750 || Math.abs(cy - this.camera.y) > 550) {
+        if (Math.abs(cx - this.camera.x) > this.camera.viewRadius || Math.abs(cy - this.camera.y) > this.camera.viewRadius) {
           continue;
         }
 
@@ -976,7 +991,7 @@ export class GameRenderer {
 
     // 2. Solid Parked Vehicles (cleanly fitting between painted lines!)
     for (const pc of this.occupiedStalls) {
-      if (Math.abs(pc.cx - this.camera.x) > 750 || Math.abs(pc.cy - this.camera.y) > 550) {
+      if (Math.abs(pc.cx - this.camera.x) > this.camera.viewRadius || Math.abs(pc.cy - this.camera.y) > this.camera.viewRadius) {
         continue;
       }
       ctx.save();
@@ -1030,7 +1045,7 @@ export class GameRenderer {
   renderTrafficCars() {
     const ctx = this.ctx;
     for (const tc of this.trafficCars) {
-      if (Math.abs(tc.x - this.camera.x) > 750 || Math.abs(tc.y - this.camera.y) > 550) {
+      if (Math.abs(tc.x - this.camera.x) > this.camera.viewRadius || Math.abs(tc.y - this.camera.y) > this.camera.viewRadius) {
         continue;
       }
       ctx.save();
@@ -1095,7 +1110,7 @@ export class GameRenderer {
   renderPedestrians() {
     const ctx = this.ctx;
     for (const ped of this.pedestrians) {
-      if (Math.abs(ped.x - this.camera.x) > 700 || Math.abs(ped.y - this.camera.y) > 500) {
+      if (Math.abs(ped.x - this.camera.x) > this.camera.viewRadius || Math.abs(ped.y - this.camera.y) > this.camera.viewRadius) {
         continue;
       }
       ctx.save();
@@ -1168,6 +1183,10 @@ export class GameRenderer {
       if (!isTarget && dist > 600) continue;
 
       ctx.save();
+      // Keep labels upright on screen regardless of camera rotation
+      ctx.translate(cx, cy);
+      ctx.rotate(-this.camera.rotation);
+      ctx.translate(-cx, -cy);
       if (isTarget) {
         const pulse = (Math.sin(Date.now() / 220) + 1) / 2;
         ctx.strokeStyle = COLORS.seluGold;
@@ -1281,7 +1300,7 @@ export class GameRenderer {
 
     if (parkingProgress > 0) {
       ctx.save();
-      ctx.rotate(-v.angle);
+      ctx.rotate(-v.angle - this.camera.rotation);
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
       ctx.lineWidth = 3;
       ctx.beginPath();

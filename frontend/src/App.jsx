@@ -89,6 +89,7 @@ export default function App() {
     if (rendererRef.current) {
       rendererRef.current.camera.x = sp.x;
       rendererRef.current.camera.y = sp.y;
+      rendererRef.current.camera.heading = null;
     }
     showToast('Vehicle reset to campus road spawn', 'warning', 1600);
   }, [activeDestination, mapData, showToast]);
