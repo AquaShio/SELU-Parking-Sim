@@ -446,9 +446,8 @@ export default function App() {
                   if (isPermitLegal) {
                     eligibleStallFound = stall;
                     isDocking = true;
-                    // Stationary parking: advances quickly and reliably when car is stopped still
-                    const rate = check.isStationary ? 1.6 : 1.1;
-                    holdParkTimer += dt * rate;
+                    // Only eligible once fully stopped, so the meter fills at the stationary rate
+                    holdParkTimer += dt * 1.6;
                     const progress = Math.min(1.0, holdParkTimer / 0.95);
                     setParkingProgress(progress);
 

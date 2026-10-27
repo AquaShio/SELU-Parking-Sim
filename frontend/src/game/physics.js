@@ -429,7 +429,8 @@ export class VehiclePhysics {
 
     const curSpeedMph = this.getSpeedMph();
     const speedLow = curSpeedMph < 3.8;
-    const isStationary = curSpeedMph < 1.2;
+    // Speed snaps to exactly 0 when the car comes to rest, so this means fully stopped
+    const isStationary = Math.abs(this.speed) < 0.5;
 
     // Angle alignment relative to stall dividers (0 or 180 deg)
     const deg = this.getHeadingDeg();
@@ -446,7 +447,7 @@ export class VehiclePhysics {
       isAligned,
       isStationary,
       alignmentOffset,
-      isEligible: isInside && speedLow && isAligned
+      isEligible: isInside && isStationary && isAligned
     };
   }
 }
