@@ -111,6 +111,7 @@ export class VehiclePhysics {
     this.isBraking = false;
     this.isDrifting = false;
     this.reverseHoldTimer = 0;
+    this.brakeFromMotion = false; // Current brake press began while moving forward
   }
 
   reset(x, y, headingDeg = 50) {
@@ -125,6 +126,7 @@ export class VehiclePhysics {
     this.cruiseActive = false;
     this.cruiseTargetSpeed = 0;
     this.reverseHoldTimer = 0;
+    this.brakeFromMotion = false;
   }
 
   toggleCruise() {
@@ -161,6 +163,9 @@ export class VehiclePhysics {
     // Cancel cruise control on active braking
     if (brake > 0 || handbrake) {
       this.cruiseActive = false;
+    }
+    if (brake === 0) {
+      this.brakeFromMotion = false;
     }
 
     // Speed limits based on mode & testing governor (speeding physically impossible)
@@ -210,6 +215,7 @@ export class VehiclePhysics {
         this.speed -= this.brakeRate * dt;
         this.isBraking = true;
         this.reverseHoldTimer = 0;
+        this.brakeFromMotion = true;
         if (this.speed < 0) this.speed = 0;
       } else if (this.speed < -2.0) {
         // Reversing backwards
@@ -221,8 +227,9 @@ export class VehiclePhysics {
         this.speed = 0;
         this.isBraking = true;
         this.reverseHoldTimer += dt;
-        // Holding brake while stationary for > 0.32s transitions into reverse
-        if (this.reverseHoldTimer > 0.32) {
+        // Pressing brake from a standstill reverses immediately; if this press
+        // braked the car to a stop, hold for 0.32s before transitioning to reverse
+        if (!this.brakeFromMotion || this.reverseHoldTimer > 0.32) {
           this.gear = 'R';
           this.speed = -12;
         }
