@@ -14,25 +14,37 @@
   --selu-border: rgba(255, 255, 255, 0.12);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  user-select: none;
-  -webkit-user-select: none;
+@layer base {
+  * {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  body, html, #root {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, #003626 0%, #00573D 55%, #b58900 88%, #FFC72C 100%);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    letter-spacing: 0.025em;
+    word-spacing: 0.04em;
+    line-height: 1.5;
+    color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
-body, html, #root {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-color: #0b1118;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: #f8fafc;
+.selu-menu-gradient {
+  background: linear-gradient(135deg, #003626 0%, #00573D 48%, #1b6b3a 72%, #d4a017 90%, #FFC72C 100%);
 }
 
 .font-chakra {
   font-family: 'Chakra Petch', sans-serif;
+  letter-spacing: 0.045em;
 }
 
 .font-mono-code {

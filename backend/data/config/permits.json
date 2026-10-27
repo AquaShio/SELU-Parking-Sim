@@ -2,14 +2,14 @@
   "permits": {
     "freshman": {
       "label": "Freshman Commuter",
-      "color": "#8B4513",
+      "color": "#703d2a",
       "tag_color": "Brown",
       "allowed_lots": ["freshman", "overflow", "visitor"],
       "description": "Restricted to University Center, Cook Field, and North Oaks lots."
     },
     "upperclass": {
       "label": "Upperclass Commuter",
-      "color": "#D4A017",
+      "color": "#e3e12c",
       "tag_color": "Golden Yellow",
       "allowed_lots": ["upperclass", "freshman", "overflow", "visitor"],
       "description": "Full commuter lot access across North Oak St and SGA Drive."

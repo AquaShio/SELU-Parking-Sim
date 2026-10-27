@@ -13,11 +13,11 @@ const COLORS = {
 
 // Southeastern Hangtag Permit Colors
 const PERMIT_COLORS = {
-  freshman: '#8B4513',   // Brown
-  upperclass: '#D4A017', // Golden / Dark Yellow
+  freshman: '#703d2a',   // Brown
+  upperclass: '#e3e12c', // Golden / Dark Yellow
   faculty: '#DC2626',    // Red
   resident: '#721226',   // Dark Burgundy
-  commuter: '#D4A017',
+  commuter: '#e3e12c',
   visitor: '#10B981'
 };
 
@@ -931,7 +931,7 @@ export class GameRenderer {
         const halfW = stall.width / 2;
 
         const sType = (stall.stall_type || 'commuter').toLowerCase();
-        const stallColor = PERMIT_COLORS[sType] || '#D4A017';
+        const stallColor = PERMIT_COLORS[sType] || '#e3e12c';
 
         if (isLegal) {
           const strokeColor = isEligibleTarget

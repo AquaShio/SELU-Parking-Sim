@@ -67,10 +67,10 @@ export function HUD({
 
         {/* Right: Permit Badge, Strikes, Zoom & Audio Controls */}
         <div className="flex items-center gap-2.5 pointer-events-auto">
-          <div className="selu-panel rounded-xl px-3 py-2 flex items-center gap-2 border" style={{ borderColor: `${permitInfo?.color || '#D4A017'}45` }}>
+          <div className="selu-panel rounded-xl px-3 py-2 flex items-center gap-2 border" style={{ borderColor: `${permitInfo?.color || '#e3e12c'}45` }}>
             <div
               className="w-3.5 h-3.5 rounded-full border border-white/30 shadow-sm flex-shrink-0"
-              style={{ backgroundColor: permitInfo?.color || '#D4A017' }}
+              style={{ backgroundColor: permitInfo?.color || '#e3e12c' }}
             />
             <div className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
               <span>{permitInfo?.label || 'Student Permit'}</span>
@@ -78,9 +78,9 @@ export function HUD({
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded font-extrabold uppercase border"
                   style={{
-                    backgroundColor: `${permitInfo.color || '#D4A017'}20`,
-                    borderColor: `${permitInfo.color || '#D4A017'}50`,
-                    color: permitInfo.color === '#8B4513' ? '#F59E0B' : (permitInfo.color || '#D4A017')
+                    backgroundColor: `${permitInfo.color || '#e3e12c'}20`,
+                    borderColor: `${permitInfo.color || '#e3e12c'}50`,
+                    color: permitInfo.color || '#e3e12c'
                   }}
                 >
                   {permitInfo.tag_color || permitInfo.tagColor}
