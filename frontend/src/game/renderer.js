@@ -796,7 +796,7 @@ export class GameRenderer {
       this.camera.heading = vehicle.angle;
     } else {
       const headingDiff = Math.atan2(Math.sin(vehicle.angle - this.camera.heading), Math.cos(vehicle.angle - this.camera.heading));
-      this.camera.heading += headingDiff * 0.14;
+      this.camera.heading += headingDiff * 0.045;
     }
     this.camera.rotation = -Math.PI / 2 - this.camera.heading;
     // Any rotation can expose the viewport's corners, so cull by its half-diagonal
