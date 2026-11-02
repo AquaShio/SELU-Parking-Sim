@@ -10,7 +10,8 @@ export function DebriefModal({
 }) {
   const isSuccess = runData?.result === 'parked';
   const isTimeout = runData?.result === 'timeout';
-  const isGameOver = runData?.result === 'game_over';
+  const isPedestrianHit = runData?.result === 'pedestrian_hit';
+  const isGameOver = ['game_over', 'strikeout', 'pedestrian_hit'].includes(runData?.result);
 
   useEffect(() => {
     if (isSuccess) {
@@ -54,12 +55,14 @@ export function DebriefModal({
           <h2 className="text-2xl font-black font-chakra tracking-wide text-white mt-2">
             {isSuccess && 'PARKED ON TIME!'}
             {isTimeout && 'CLASS STARTED — TIMEOUT'}
-            {isGameOver && 'CAMPUS DISQUALIFICATION'}
+            {isGameOver && (isPedestrianHit ? 'PEDESTRIAN STRUCK — GAME OVER' : 'CAMPUS DISQUALIFICATION')}
           </h2>
           <div className="text-xs text-slate-300">
             {isSuccess && 'You found an authorized stall and made it to class on time.'}
             {isTimeout && 'You did not find an eligible parking spot before the morning bell.'}
-            {isGameOver && 'Exceeded the 3-strike limit from speeding, curbs, or permit violations.'}
+            {isGameOver && (isPedestrianHit
+              ? 'You hit a student. Always yield to pedestrians on campus crosswalks, sidewalks, and parking lots.'
+              : 'Exceeded the 3-strike limit from speeding, curbs, or permit violations.')}
           </div>
         </div>
 

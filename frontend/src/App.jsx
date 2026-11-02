@@ -415,17 +415,13 @@ export default function App() {
 
         // 5b. Pedestrian Collision & Yield Check
         const hitPed = renderer.checkPedestrianCollision(v);
-        if (hitPed && v.getSpeedMph() > 1.8 && collisionStrikeCooldown <= 0) {
-          collisionStrikeCooldown = 2.0;
+        // Hitting a student ends the run immediately
+        if (hitPed && v.getSpeedMph() > 1.8) {
           renderer.triggerImpactEffect(hitPed.x, hitPed.y);
-          sounds.playStrikeBuzzer();
-          hitPed.x += Math.cos(v.angle) * 22;
-          hitPed.y += Math.sin(v.angle) * 22;
-          issueStrike(
-            'pedestrian_yield_strike',
-            { speed: Math.round(v.getSpeedMph()) },
-            'Pedestrian Incident! Yield to students at campus crosswalks — Strike Issued'
-          );
+          showToast('Pedestrian Struck! You hit a student — Game Over', 'error', 4000);
+          logEvent(activeRunIdRef.current, simTime, 'pedestrian_hit', { speed: Math.round(v.getSpeedMph()), pedestrian: hitPed.id });
+          handleEndRun('pedestrian_hit');
+          return;
         }
 
         // 6. Parking Stall Detection & Hold Meter
