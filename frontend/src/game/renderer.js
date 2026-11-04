@@ -33,6 +33,44 @@ function pointInPoly(x, y, poly) {
   return inside;
 }
 
+// Precompute cumulative arc lengths so AI agents can be placed by distance along a polyline
+function buildPath(points, closed) {
+  const pts = points.map(([x, y]) => ({ x, y }));
+  if (closed) pts.push(pts[0]);
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) {
+    cum.push(cum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
+  }
+  return { pts, cum, total: cum[cum.length - 1] || 1, closed };
+}
+
+function samplePath(path, d) {
+  const { pts, cum, total, closed } = path;
+  d = closed ? ((d % total) + total) % total : Math.max(0, Math.min(total, d));
+  let lo = 0;
+  let hi = cum.length - 1;
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    if (cum[mid] <= d) lo = mid; else hi = mid;
+  }
+  const a = pts[lo];
+  const b = pts[hi];
+  const segLen = cum[hi] - cum[lo] || 1;
+  const t = (d - cum[lo]) / segLen;
+  return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t, angle: Math.atan2(b.y - a.y, b.x - a.x) };
+}
+
+// Place a traffic car on its lane loop, heading along the chord through it so corners turn smoothly
+function placeOnPath(tc) {
+  const p = samplePath(tc.path, tc.dist);
+  const back = samplePath(tc.path, tc.dist - 10);
+  const front = samplePath(tc.path, tc.dist + 10);
+  tc.x = p.x;
+  tc.y = p.y;
+  tc.heading = (Math.atan2(front.y - back.y, front.x - back.x) * 180) / Math.PI;
+  tc.obb = buildOBB(tc.x, tc.y, (tc.heading * Math.PI) / 180, tc.length, tc.width, tc.id);
+}
+
 export class GameRenderer {
   constructor(canvas) {
     this.canvas = canvas;
@@ -128,217 +166,65 @@ export class GameRenderer {
       }
     }
 
-    // Initialize Campus AI Traffic Cars (Waypoint-based road lanes)
+    // Initialize Campus AI Traffic Cars on lane loops traced from the real campus roads
+    // (generated offline by backend/generate_ai_routes.py from the Zoom 19 tiles)
     this.trafficCars = [];
-    const trafficCorridors = [
-      // 1. North Oak Street Southbound (UC / North Campus to South Campus)
-      {
-        id: 'oak_sb_1',
-        routeId: 'oak_sb',
-        speed: 78,
-        color: '#e2e8f0',
-        waypoints: [
-          { x: 8320, y: 6600 },
-          { x: 8325, y: 8500 },
-          { x: 8345, y: 10500 },
-          { x: 8345, y: 12500 },
-          { x: 8320, y: 14400 }
-        ],
-        startProg: 0.12
-      },
-      {
-        id: 'oak_sb_2',
-        routeId: 'oak_sb',
-        speed: 82,
-        color: '#1e293b',
-        waypoints: [
-          { x: 8320, y: 6600 },
-          { x: 8325, y: 8500 },
-          { x: 8345, y: 10500 },
-          { x: 8345, y: 12500 },
-          { x: 8320, y: 14400 }
-        ],
-        startProg: 0.58
-      },
-      // 2. North Oak Street Northbound (South Campus to UC)
-      {
-        id: 'oak_nb_1',
-        routeId: 'oak_nb',
-        speed: 80,
-        color: '#dc2626',
-        waypoints: [
-          { x: 8350, y: 14400 },
-          { x: 8350, y: 12500 },
-          { x: 8350, y: 10500 },
-          { x: 8330, y: 8500 },
-          { x: 8325, y: 6600 }
-        ],
-        startProg: 0.18
-      },
-      {
-        id: 'oak_nb_2',
-        routeId: 'oak_nb',
-        speed: 76,
-        color: '#94a3b8',
-        waypoints: [
-          { x: 8350, y: 14400 },
-          { x: 8350, y: 12500 },
-          { x: 8350, y: 10500 },
-          { x: 8330, y: 8500 },
-          { x: 8325, y: 6600 }
-        ],
-        startProg: 0.68
-      },
-      // 3. SGA Drive Eastbound (University Center towards North Oak Street)
-      {
-        id: 'sga_eb_1',
-        routeId: 'sga_eb',
-        speed: 75,
-        color: '#f8fafc',
-        waypoints: [
-          { x: 3600, y: 6515 },
-          { x: 5500, y: 6515 },
-          { x: 8180, y: 6515 }
-        ],
-        startProg: 0.35
-      },
-      // 4. SGA Drive Westbound (North Oak Street towards University Center)
-      {
-        id: 'sga_wb_1',
-        routeId: 'sga_wb',
-        speed: 78,
-        color: '#b45309',
-        waypoints: [
-          { x: 8180, y: 6485 },
-          { x: 5500, y: 6485 },
-          { x: 3600, y: 6485 }
-        ],
-        startProg: 0.45
-      },
-      // 5. West Dakota Street Eastbound (Pershing towards North Oak Street)
-      {
-        id: 'dak_eb_1',
-        routeId: 'dak_eb',
-        speed: 76,
-        color: '#475569',
-        waypoints: [
-          { x: 6400, y: 10815 },
-          { x: 8220, y: 10815 }
-        ],
-        startProg: 0.25
-      },
-      // 6. West Dakota Street Westbound (North Oak Street towards Pershing)
-      {
-        id: 'dak_wb_1',
-        routeId: 'dak_wb',
-        speed: 80,
-        color: '#15803d',
-        waypoints: [
-          { x: 8220, y: 10785 },
-          { x: 6400, y: 10785 }
-        ],
-        startProg: 0.6
-      },
-      // 7. North Campus / Lion Lane Southbound
-      {
-        id: 'lion_sb_1',
-        routeId: 'lion_sb',
-        speed: 72,
-        color: '#d97706',
-        waypoints: [
-          { x: 3192, y: 3600 },
-          { x: 3192, y: 5800 }
-        ],
-        startProg: 0.3
-      },
-      // 8. North Campus / Lion Lane Northbound
-      {
-        id: 'lion_nb_1',
-        routeId: 'lion_nb',
-        speed: 74,
-        color: '#64748b',
-        waypoints: [
-          { x: 3216, y: 5800 },
-          { x: 3216, y: 3600 }
-        ],
-        startProg: 0.75
+    const routes = new Map();
+    for (const r of map?.traffic_routes || []) {
+      if (r.points && r.points.length >= 2) routes.set(r.id, buildPath(r.points, true));
+    }
+    for (const c of map?.traffic_cars || []) {
+      const path = routes.get(c.route_id);
+      if (!path) continue;
+      let dist = (c.start_prog || 0) * path.total;
+      // Don't drop a car right on top of the player's spawn
+      for (let tries = 0; tries < 20; tries++) {
+        const p = samplePath(path, dist);
+        if (Math.hypot(p.x - sx, p.y - sy) > 160) break;
+        dist = (dist + 160) % path.total;
       }
-    ];
-
-    for (const r of trafficCorridors) {
-      const wps = r.waypoints;
-      const numSegments = wps.length - 1;
-      const segFloat = r.startProg * numSegments;
-      const segIdx = Math.min(numSegments - 1, Math.floor(segFloat));
-      const segT = segFloat - segIdx;
-      const p1 = wps[segIdx];
-      const p2 = wps[segIdx + 1];
-      const startX = p1.x + (p2.x - p1.x) * segT;
-      const startY = p1.y + (p2.y - p1.y) * segT;
-      const headingDeg = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
-
       const tc = {
-        id: r.id,
-        routeId: r.routeId,
-        x: startX,
-        y: startY,
-        waypoints: wps,
-        targetIdx: segIdx + 1,
-        heading: headingDeg,
-        speed: r.speed,
-        targetSpeed: r.speed,
+        id: c.id,
+        routeId: c.route_id,
+        path,
+        dist,
+        x: 0,
+        y: 0,
+        heading: 0,
+        speed: c.speed,
+        targetSpeed: c.speed,
         length: 29.0,
         width: 14.0,
-        color: r.color,
+        color: c.color,
         isBraking: false,
-        obb: buildOBB(startX, startY, (headingDeg * Math.PI) / 180, 29.0, 14.0, r.id)
+        obb: null
       };
+      placeOnPath(tc);
       this.trafficCars.push(tc);
     }
 
-    // Initialize Campus Student Pedestrians
+    // Initialize Campus Student Pedestrians on sidewalk paths traced from the campus tiles
     this.pedestrians = [];
-    const pedDefs = [
-      // Fayard Hall Crosswalk across North Oak Street
-      { x1: 8200, y1: 9810, x2: 8275, y2: 9810, speed: 22, shirt: '#00573D' },
-      { x1: 8275, y1: 9825, x2: 8200, y2: 9825, speed: 20, shirt: '#FFC72C' },
-      // Student Union Crosswalk across North Oak Street
-      { x1: 8200, y1: 10940, x2: 8280, y2: 10940, speed: 24, shirt: '#f8fafc' },
-      { x1: 8280, y1: 10960, x2: 8200, y2: 10960, speed: 21, shirt: '#1e3a8a' },
-      // Campbell / Pottle Hall Crosswalk
-      { x1: 8200, y1: 11950, x2: 8280, y2: 11950, speed: 23, shirt: '#00573D' },
-      // Fayard Hall Quad Walkway
-      { x1: 8850, y1: 10250, x2: 9150, y2: 10250, speed: 25, shirt: '#dc2626' },
-      { x1: 9100, y1: 10270, x2: 8870, y2: 10270, speed: 22, shirt: '#FFC72C' },
-      // Anzalone to Fayard Breezeway
-      { x1: 8850, y1: 9700, x2: 8850, y2: 10100, speed: 26, shirt: '#00573D' },
-      { x1: 8870, y1: 10080, x2: 8870, y2: 9720, speed: 24, shirt: '#475569' },
-      // Student Union Plaza
-      { x1: 8180, y1: 11120, x2: 8450, y2: 11120, speed: 22, shirt: '#FFC72C' },
-      { x1: 8420, y1: 11150, x2: 8200, y2: 11150, speed: 23, shirt: '#00573D' },
-      // Sims Memorial Library Entrance
-      { x1: 7420, y1: 10560, x2: 7680, y2: 10560, speed: 20, shirt: '#2563eb' },
-      // SGA Drive UC Crosswalk
-      { x1: 4216, y1: 6465, x2: 4216, y2: 6535, speed: 22, shirt: '#166534' }
-    ];
-
     const hairColors = ['#451a03', '#78350f', '#0f172a', '#fbbf24', '#171717'];
     const skinColors = ['#fcd34d', '#fed7aa', '#fbcfe8', '#d97706', '#92400e'];
     const pantsColors = ['#1e293b', '#2563eb', '#334155', '#475569'];
     const backpackColors = ['#00573D', '#0f172a', '#b45309', '#1e3a8a'];
 
-    pedDefs.forEach((p, idx) => {
+    (map?.pedestrian_paths || []).forEach((p, idx) => {
+      if (!p.points || p.points.length < 2) return;
+      const path = buildPath(p.points, false);
+      const dist = ((idx * 0.618) % 1) * path.total;
+      const pos = samplePath(path, dist);
       this.pedestrians.push({
-        id: `ped_${idx}`,
-        x: p.x1,
-        y: p.y1,
-        x1: p.x1,
-        y1: p.y1,
-        x2: p.x2,
-        y2: p.y2,
-        target: 2,
+        id: p.id || `ped_${idx}`,
+        path,
+        dist,
+        dir: idx % 2 === 0 ? 1 : -1,
+        pause: 0,
+        x: pos.x,
+        y: pos.y,
         speed: p.speed,
-        angle: Math.atan2(p.y2 - p.y1, p.x2 - p.x1),
+        angle: pos.angle,
         shirtColor: p.shirt,
         pantsColor: pantsColors[idx % pantsColors.length],
         backpackColor: backpackColors[idx % backpackColors.length],
@@ -638,8 +524,6 @@ export class GameRenderer {
 
   updateTrafficCars(dt, vehicle) {
     for (const tc of this.trafficCars) {
-      if (!tc.waypoints || tc.waypoints.length < 2) continue;
-
       const radHeading = (tc.heading * Math.PI) / 180;
       const cosH = Math.cos(radHeading);
       const sinH = Math.sin(radHeading);
@@ -659,7 +543,8 @@ export class GameRenderer {
         }
       }
 
-      // 2. Check distance to other traffic cars ahead in lane
+      // 2. Check distance to other traffic cars ahead in the same direction of travel
+      // (oncoming or crossing cars are ignored so two cars at a merge can't block each other forever)
       if (!mustYield) {
         for (const other of this.trafficCars) {
           if (other.id === tc.id) continue;
@@ -667,6 +552,8 @@ export class GameRenderer {
           const toOtherY = other.y - tc.y;
           const distToOther = Math.hypot(toOtherX, toOtherY);
           if (distToOther < 75) {
+            const headingDiff = Math.abs(((other.heading - tc.heading) % 360 + 540) % 360 - 180);
+            if (headingDiff > 75) continue;
             const fwd = toOtherX * cosH + toOtherY * sinH;
             const lat = Math.abs(-toOtherX * sinH + toOtherY * cosH);
             if (fwd > 0 && fwd < 68 && lat < 18) {
@@ -694,46 +581,26 @@ export class GameRenderer {
         }
       }
 
+      // Slow down for upcoming turns: compare the lane direction here with ~50px ahead
+      const ahead = samplePath(tc.path, tc.dist + 50);
+      const turn = Math.abs(((ahead.angle - radHeading + 3 * Math.PI) % (2 * Math.PI)) - Math.PI);
+      const cruiseSpeed = tc.targetSpeed * (1 - Math.min(0.55, turn * 0.6));
+
       // Speed control & braking
       if (mustYield) {
         tc.isBraking = true;
         tc.speed = Math.max(0, tc.speed - 150 * dt);
+      } else if (tc.speed > cruiseSpeed) {
+        tc.isBraking = true;
+        tc.speed = Math.max(cruiseSpeed, tc.speed - 90 * dt);
       } else {
         tc.isBraking = false;
-        if (tc.speed < tc.targetSpeed) {
-          tc.speed = Math.min(tc.targetSpeed, tc.speed + 55 * dt);
-        }
+        tc.speed = Math.min(cruiseSpeed, tc.speed + 55 * dt);
       }
 
-      // Steer toward current target waypoint
-      const targetPt = tc.waypoints[tc.targetIdx];
-      const dx = targetPt.x - tc.x;
-      const dy = targetPt.y - tc.y;
-      const distToWp = Math.hypot(dx, dy);
-
-      const targetDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
-      let diffH = ((targetDeg - tc.heading) % 360 + 540) % 360 - 180;
-      tc.heading += diffH * Math.min(1.0, dt * 10.0);
-
-      const moveRad = (tc.heading * Math.PI) / 180;
-      tc.x += Math.cos(moveRad) * tc.speed * dt;
-      tc.y += Math.sin(moveRad) * tc.speed * dt;
-
-      // Advance waypoint index or loop around when reaching corridor end
-      if (distToWp < 25) {
-        tc.targetIdx++;
-        if (tc.targetIdx >= tc.waypoints.length) {
-          tc.targetIdx = 1;
-          tc.x = tc.waypoints[0].x;
-          tc.y = tc.waypoints[0].y;
-          const nextDx = tc.waypoints[1].x - tc.x;
-          const nextDy = tc.waypoints[1].y - tc.y;
-          tc.heading = (Math.atan2(nextDy, nextDx) * 180) / Math.PI;
-        }
-      }
-
-      // Update oriented bounding box for collision detection
-      tc.obb = buildOBB(tc.x, tc.y, (tc.heading * Math.PI) / 180, tc.length, tc.width, tc.id);
+      // Advance along the lane loop; position always stays on the traced road
+      tc.dist = (tc.dist + tc.speed * dt) % tc.path.total;
+      placeOnPath(tc);
     }
   }
 
@@ -747,26 +614,45 @@ export class GameRenderer {
         }
       }
 
+      // Don't walk through a car sitting in the crosswalk ahead (the player's or an AI car)
+      if (!yieldToCar) {
+        const fwdX = Math.cos(ped.angle);
+        const fwdY = Math.sin(ped.angle);
+        const blockers = vehicle ? [vehicle, ...this.trafficCars] : this.trafficCars;
+        for (const car of blockers) {
+          const dx = car.x - ped.x;
+          const dy = car.y - ped.y;
+          const fwd = dx * fwdX + dy * fwdY;
+          if (fwd > 0 && fwd < 30 && Math.abs(-dx * fwdY + dy * fwdX) < 20) {
+            yieldToCar = true;
+            break;
+          }
+        }
+      }
+
       ped.isYielding = yieldToCar;
       if (yieldToCar) {
         continue;
       }
 
-      const targetX = ped.target === 2 ? ped.x2 : ped.x1;
-      const targetY = ped.target === 2 ? ped.y2 : ped.y1;
-      const distToTarget = Math.hypot(targetX - ped.x, targetY - ped.y);
-
-      if (distToTarget < 5.0) {
-        ped.target = ped.target === 2 ? 1 : 2;
-        const nextX = ped.target === 2 ? ped.x2 : ped.x1;
-        const nextY = ped.target === 2 ? ped.y2 : ped.y1;
-        ped.angle = Math.atan2(nextY - ped.y, nextX - ped.x);
-      } else {
-        ped.angle = Math.atan2(targetY - ped.y, targetX - ped.x);
-        ped.x += Math.cos(ped.angle) * ped.speed * dt;
-        ped.y += Math.sin(ped.angle) * ped.speed * dt;
-        ped.walkPhase += dt * (ped.speed * 0.45);
+      // Linger for a moment at either end of the walk before heading back
+      if (ped.pause > 0) {
+        ped.pause -= dt;
+        continue;
       }
+
+      ped.dist += ped.dir * ped.speed * dt;
+      if (ped.dist >= ped.path.total || ped.dist <= 0) {
+        ped.dist = Math.max(0, Math.min(ped.path.total, ped.dist));
+        ped.dir = -ped.dir;
+        ped.pause = 1.5 + Math.random() * 3.0;
+      }
+
+      const pos = samplePath(ped.path, ped.dist);
+      ped.x = pos.x;
+      ped.y = pos.y;
+      ped.angle = ped.dir > 0 ? pos.angle : pos.angle + Math.PI;
+      ped.walkPhase += dt * (ped.speed * 0.45);
     }
   }
 

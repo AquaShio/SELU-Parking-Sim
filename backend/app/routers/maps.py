@@ -7,8 +7,12 @@ from app.services.map_loader import load_map, list_maps, load_permits, load_diff
 
 router = APIRouter(prefix="/maps", tags=["Maps"])
 
-TILES_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "tiles"
-TILES_DIR.mkdir(parents=True, exist_ok=True)
+# Updated directory paths for raw rendering tiles and collision mask tiles
+RAW_TILES_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "raw_tiles"
+COLLISION_TILES_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "collision_tiles"
+
+RAW_TILES_DIR.mkdir(parents=True, exist_ok=True)
+COLLISION_TILES_DIR.mkdir(parents=True, exist_ok=True)
 
 
 @router.get("", response_model=List[Dict[str, Any]])
@@ -31,7 +35,8 @@ def get_concept3d_tile(z: int, x: int, y_xyz: int):
     if z < 14 or z > 21:
         raise HTTPException(status_code=400, detail="Invalid zoom level")
 
-    cache_file = TILES_DIR / f"{z}_{x}_{y_xyz}.webp"
+    # Serve visual map tiles directly from raw_tiles
+    cache_file = RAW_TILES_DIR / f"{z}_{x}_{y_xyz}.webp"
     if cache_file.exists():
         data = cache_file.read_bytes()
         return Response(

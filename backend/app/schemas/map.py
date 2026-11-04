@@ -74,6 +74,27 @@ class Tree(BaseModel):
     radius: float = 13.5
 
 
+class TrafficRoute(BaseModel):
+    id: str
+    name: str = ""
+    points: List[List[float]]  # closed loop in the right-hand lane, generated from map tiles
+
+
+class TrafficCar(BaseModel):
+    id: str
+    route_id: str
+    color: str = "#e2e8f0"
+    speed: float = 76.0
+    start_prog: float = 0.0  # 0..1 fraction of the loop length
+
+
+class PedestrianPath(BaseModel):
+    id: str
+    points: List[List[float]]  # sidewalk polyline; students walk it back and forth
+    speed: float = 22.0
+    shirt: str = "#00573D"
+
+
 class MapOut(BaseModel):
     id: str
     name: str
@@ -92,3 +113,6 @@ class MapOut(BaseModel):
     buildings: List[Building] = []
     trees: List[Tree] = []
     destinations: List[Destination] = []
+    traffic_routes: List[TrafficRoute] = []
+    traffic_cars: List[TrafficCar] = []
+    pedestrian_paths: List[PedestrianPath] = []
