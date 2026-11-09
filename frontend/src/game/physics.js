@@ -110,7 +110,9 @@ export class VehiclePhysics {
     this.gear = 'D';
     this.isBraking = false;
     this.isDrifting = false;
+    this.isOffroad = false; // Two or more corners on grass / off-road surface
     this.reverseHoldTimer = 0;
+    this.brakeFromMotion = false; // Current brake press began while moving forward
   }
 
   reset(x, y, headingDeg = 50) {
@@ -122,9 +124,11 @@ export class VehiclePhysics {
     this.gear = 'D';
     this.isBraking = false;
     this.isDrifting = false;
+    this.isOffroad = false;
     this.cruiseActive = false;
     this.cruiseTargetSpeed = 0;
     this.reverseHoldTimer = 0;
+    this.brakeFromMotion = false;
   }
 
   toggleCruise() {
@@ -140,10 +144,13 @@ export class VehiclePhysics {
   update(dt, environment = null) {
     if (dt <= 0 || dt > 0.1) dt = 0.016;
 
-    // 1. Steering
+    // 1. Steering (speed-sensitive: full lock up to ~8 mph, tapering to 45% at 30 mph)
+    const steerTaper = Math.min(1, Math.max(0, (Math.abs(this.speed) - 60) / (225 - 60)));
+    const steerScale = 1 - 0.55 * steerTaper;
+    const maxSteer = this.maxSteerAngle * steerScale;
     if (this.inputs.steer !== 0) {
-      this.steerAngle += this.inputs.steer * this.steerSpeed * dt;
-      this.steerAngle = Math.max(-this.maxSteerAngle, Math.min(this.maxSteerAngle, this.steerAngle));
+      this.steerAngle += this.inputs.steer * this.steerSpeed * steerScale * dt;
+      this.steerAngle = Math.max(-maxSteer, Math.min(maxSteer, this.steerAngle));
     } else {
       if (Math.abs(this.steerAngle) > 0.01) {
         const sign = Math.sign(this.steerAngle);
@@ -161,6 +168,9 @@ export class VehiclePhysics {
     // Cancel cruise control on active braking
     if (brake > 0 || handbrake) {
       this.cruiseActive = false;
+    }
+    if (brake === 0) {
+      this.brakeFromMotion = false;
     }
 
     // Speed limits based on mode & testing governor (speeding physically impossible)
@@ -210,6 +220,7 @@ export class VehiclePhysics {
         this.speed -= this.brakeRate * dt;
         this.isBraking = true;
         this.reverseHoldTimer = 0;
+        this.brakeFromMotion = true;
         if (this.speed < 0) this.speed = 0;
       } else if (this.speed < -2.0) {
         // Reversing backwards
@@ -221,8 +232,9 @@ export class VehiclePhysics {
         this.speed = 0;
         this.isBraking = true;
         this.reverseHoldTimer += dt;
-        // Holding brake while stationary for > 0.32s transitions into reverse
-        if (this.reverseHoldTimer > 0.32) {
+        // Pressing brake from a standstill reverses immediately; if this press
+        // braked the car to a stop, hold for 0.32s before transitioning to reverse
+        if (!this.brakeFromMotion || this.reverseHoldTimer > 0.32) {
           this.gear = 'R';
           this.speed = -12;
         }
@@ -300,9 +312,9 @@ export class VehiclePhysics {
         }
       }
 
-      // Trees are on grass landscaping: all off-road collisions are handled as grass/curb collisions below
+      // Trees are on grass landscaping: driving onto grass is handled as an off-road strike below
 
-      // B. Solid Building & Off-Road Curb / Grass Island Collision
+      // B. Solid Building Collision
       if (environment.checkFootprintCollision) {
         const check = environment.checkFootprintCollision(this.getPerimeterPoints());
         if (check.collided) {
@@ -328,7 +340,7 @@ export class VehiclePhysics {
 
           if (!collisionEvent && impactMph >= 3.5) {
             collisionEvent = {
-              type: check.reason || 'curb_or_grass',
+              type: check.reason,
               impactMph,
               x: check.point ? check.point.x : this.x,
               y: check.point ? check.point.y : this.y
@@ -338,6 +350,9 @@ export class VehiclePhysics {
         }
       }
     }
+
+    // C. Grass / off-road surface: drivable, but flagged so a strike can be issued
+    this.isOffroad = Boolean(environment?.countOffroadPoints && environment.countOffroadPoints(this.getCorners()) >= 2);
 
     return collisionEvent;
   }
@@ -419,7 +434,8 @@ export class VehiclePhysics {
 
     const curSpeedMph = this.getSpeedMph();
     const speedLow = curSpeedMph < 3.8;
-    const isStationary = curSpeedMph < 1.2;
+    // Speed snaps to exactly 0 when the car comes to rest, so this means fully stopped
+    const isStationary = Math.abs(this.speed) < 0.5;
 
     // Angle alignment relative to stall dividers (0 or 180 deg)
     const deg = this.getHeadingDeg();
@@ -436,7 +452,7 @@ export class VehiclePhysics {
       isAligned,
       isStationary,
       alignmentOffset,
-      isEligible: isInside && speedLow && isAligned
+      isEligible: isInside && isStationary && isAligned
     };
   }
 }
