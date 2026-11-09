@@ -1,3 +1,54 @@
+const IDLE_RPM = 850;
+const GEAR_SHIFT_MPH = [9, 17, 40];
+
+// LS firing order 1-8-7-2-6-5-4-3: odd cylinders on the left bank, even on the right.
+// The cross-plane crank fires each bank unevenly, which gives the V8 its burble.
+const FIRING_BANKS = ['L', 'R', 'L', 'R', 'R', 'L', 'R', 'L'];
+// Per-cylinder combustion strength; uneven like a big cam at low RPM
+const CYLINDER_STRENGTH = [1.0, 0.92, 0.84, 1.0, 0.9, 0.97, 0.8, 0.95];
+
+// One engine cycle (720° of crank) of exhaust pressure, turned into a PeriodicWave
+function buildV8CycleWave(ctx, harmonics = 128) {
+  const N = 2048;
+  const slot = N / 8; // 90° of crank between firings
+  const cycle = new Float32Array(N);
+  for (let i = 0; i < 8; i++) {
+    const isRight = FIRING_BANKS[i] === 'R';
+    const amp = (isRight ? 0.72 : 1.0) * CYLINDER_STRENGTH[i];
+    const start = i * slot + (isRight ? 20 : 0); // Longer pipe run on the far bank
+    for (let k = 0; k < 220; k++) {
+      // Sharp pressure pulse followed by a softer rarefaction
+      const p = (k / 28) * Math.exp(1 - k / 28);
+      const r = k > 60 ? ((k - 60) / 50) * Math.exp(1 - (k - 60) / 50) : 0;
+      cycle[(start + k) % N] += amp * (p - 0.35 * r);
+    }
+  }
+
+  const real = new Float32Array(harmonics + 1);
+  const imag = new Float32Array(harmonics + 1);
+  for (let h = 1; h <= harmonics; h++) {
+    let re = 0;
+    let im = 0;
+    for (let n = 0; n < N; n++) {
+      const angle = (2 * Math.PI * h * n) / N;
+      re += cycle[n] * Math.cos(angle);
+      im += cycle[n] * Math.sin(angle);
+    }
+    real[h] = (2 / N) * re;
+    imag[h] = (2 / N) * im;
+  }
+  return ctx.createPeriodicWave(real, imag);
+}
+
+function buildSoftClipCurve(k) {
+  const curve = new Float32Array(1024);
+  for (let i = 0; i < curve.length; i++) {
+    const x = (i / (curve.length - 1)) * 2 - 1;
+    curve[i] = Math.tanh(k * x) / Math.tanh(k);
+  }
+  return curve;
+}
+
 class SoundManager {
   constructor() {
     this.ctx = null;
@@ -21,22 +72,71 @@ class SoundManager {
       this.masterGain.gain.setValueAtTime(0.3, this.ctx.currentTime);
       this.masterGain.connect(this.ctx.destination);
 
-      // Procedural Engine Synthesizer (Triangle wave with low pass filter)
-      this.engineOsc = this.ctx.createOscillator();
-      this.engineOsc.type = 'sawtooth';
-      this.engineOsc.frequency.setValueAtTime(45, this.ctx.currentTime);
+      // Procedural cammed LS V8: one oscillator period = one engine cycle (720° of crank),
+      // shaped as 8 uneven exhaust pulses in LS firing order. Frequency = RPM / 120.
+      const now = this.ctx.currentTime;
+      this.rpm = IDLE_RPM;
+      this.lopePhase = 0;
+      this.lastEngineUpdate = now;
 
+      this.engineOsc = this.ctx.createOscillator();
+      this.engineOsc.setPeriodicWave(buildV8CycleWave(this.ctx));
+      this.engineOsc.frequency.setValueAtTime(IDLE_RPM / 120, now);
+
+      // Drive into a soft clipper for exhaust grit; more drive under throttle
+      this.engineDrive = this.ctx.createGain();
+      this.engineDrive.gain.setValueAtTime(1.0, now);
+      this.engineShaper = this.ctx.createWaveShaper();
+      this.engineShaper.curve = buildSoftClipCurve(2.5);
+      this.engineShaper.oversample = '2x';
+
+      // Chest-thump low end
+      this.engineThump = this.ctx.createBiquadFilter();
+      this.engineThump.type = 'peaking';
+      this.engineThump.frequency.setValueAtTime(65, now);
+      this.engineThump.Q.setValueAtTime(0.9, now);
+      this.engineThump.gain.setValueAtTime(12, now);
+
+      // Exhaust tone; opens up as throttle engages
       this.engineFilter = this.ctx.createBiquadFilter();
       this.engineFilter.type = 'lowpass';
-      this.engineFilter.frequency.setValueAtTime(280, this.ctx.currentTime);
+      this.engineFilter.frequency.setValueAtTime(220, now);
+      this.engineFilter.Q.setValueAtTime(0.9, now);
 
       this.engineGain = this.ctx.createGain();
-      this.engineGain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      this.engineGain.gain.setValueAtTime(0.09, now);
 
-      this.engineOsc.connect(this.engineFilter);
+      this.engineOsc.connect(this.engineDrive);
+      this.engineDrive.connect(this.engineShaper);
+      this.engineShaper.connect(this.engineThump);
+      this.engineThump.connect(this.engineFilter);
       this.engineFilter.connect(this.engineGain);
       this.engineGain.connect(this.masterGain);
+
+      // Exhaust rasp: band-passed noise, amplitude-modulated by the same pulse train
+      const noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 2, this.ctx.sampleRate);
+      const noiseData = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < noiseData.length; i++) noiseData[i] = Math.random() * 2 - 1;
+      this.raspNoise = this.ctx.createBufferSource();
+      this.raspNoise.buffer = noiseBuffer;
+      this.raspNoise.loop = true;
+      this.raspFilter = this.ctx.createBiquadFilter();
+      this.raspFilter.type = 'bandpass';
+      this.raspFilter.frequency.setValueAtTime(420, now);
+      this.raspFilter.Q.setValueAtTime(0.8, now);
+      this.raspGain = this.ctx.createGain();
+      this.raspGain.gain.setValueAtTime(0, now);
+      this.raspDepth = this.ctx.createGain();
+      this.raspDepth.gain.setValueAtTime(0.025, now);
+
+      this.raspNoise.connect(this.raspFilter);
+      this.raspFilter.connect(this.raspGain);
+      this.raspGain.connect(this.engineFilter);
+      this.engineOsc.connect(this.raspDepth);
+      this.raspDepth.connect(this.raspGain.gain);
+
       this.engineOsc.start();
+      this.raspNoise.start();
 
       this.isInitialized = true;
     } catch (e) {
@@ -58,18 +158,47 @@ class SoundManager {
       this.ctx.resume();
     }
 
+    const now = this.ctx.currentTime;
+    const dt = Math.min(0.1, Math.max(0, now - this.lastEngineUpdate));
+    this.lastEngineUpdate = now;
+
     const absSpeed = Math.abs(speedMph);
-    // Base frequency idle: 45Hz, at top speed ~ 180Hz
-    const targetFreq = 45 + (absSpeed * 3.8) + (throttle * 30);
-    this.engineOsc.frequency.setTargetAtTime(targetFreq, this.ctx.currentTime, 0.08);
+    const load = Math.abs(throttle);
 
-    // Filter opens up as throttle engages
-    const filterFreq = 220 + (throttle * 400) + (absSpeed * 10);
-    this.engineFilter.frequency.setTargetAtTime(filterFreq, this.ctx.currentTime, 0.08);
+    // Simple automatic gearbox: RPM climbs through each gear, then drops on the shift
+    let gearStart = 0;
+    let gearEnd = GEAR_SHIFT_MPH[GEAR_SHIFT_MPH.length - 1];
+    for (const shiftMph of GEAR_SHIFT_MPH) {
+      gearEnd = shiftMph;
+      if (absSpeed < shiftMph) break;
+      gearStart = shiftMph;
+    }
+    const gearFrac = Math.min(1, (absSpeed - gearStart) / (gearEnd - gearStart));
+    const speedRpm = absSpeed < 0.5 ? IDLE_RPM : 950 + gearFrac * 1650;
+    // Throttle flares the revs, much more so when the tires aren't moving yet
+    const targetRpm = Math.max(IDLE_RPM, speedRpm) + load * (absSpeed < 1 ? 900 : 450);
+    const rate = targetRpm > this.rpm ? 6 : 3;
+    this.rpm += (targetRpm - this.rpm) * (1 - Math.exp(-dt * rate));
 
-    // Gain increases with speed & throttle
-    const targetGain = 0.06 + (throttle * 0.08) + (absSpeed * 0.003);
-    this.engineGain.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.08);
+    // Cam lope: choppy RPM hunt and stumble at idle, fading out with revs and throttle
+    const lopeAmt = Math.min(1, Math.max(0, 1 - (this.rpm - 900) / 900)) * (1 - load * 0.8);
+    this.lopePhase = (this.lopePhase + dt * (this.rpm / 120) / 4) % 1000;
+    const phase = 2 * Math.PI * this.lopePhase;
+    const wobble = 0.6 * Math.sin(phase) + 0.4 * Math.sin(2.03 * phase + 1.3);
+    const stumble = Math.pow(Math.max(0, Math.sin(phase + 0.5)), 6);
+    const rpmOut = this.rpm + lopeAmt * 70 * wobble;
+
+    this.engineOsc.frequency.setTargetAtTime(rpmOut / 120, now, 0.03);
+    this.engineDrive.gain.setTargetAtTime(1.0 + load * 0.8, now, 0.06);
+    this.raspDepth.gain.setTargetAtTime(0.025 + load * 0.05, now, 0.06);
+
+    // Exhaust tone opens up with throttle and revs
+    const filterFreq = 220 + load * 380 + (this.rpm - IDLE_RPM) * 0.08;
+    this.engineFilter.frequency.setTargetAtTime(filterFreq, now, 0.06);
+
+    const rpmGain = Math.min(this.rpm, 4000) / 4000;
+    const targetGain = (0.09 + load * 0.1 + rpmGain * 0.05) * (1 - lopeAmt * 0.4 * stumble);
+    this.engineGain.gain.setTargetAtTime(targetGain, now, 0.03);
   }
 
   stopEngine() {
