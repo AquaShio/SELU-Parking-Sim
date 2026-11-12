@@ -276,7 +276,6 @@ export default function App() {
     let animId;
     let lastTime = performance.now();
     let simTime = 0;
-    let speedViolationTimer = 0;
     let holdParkTimer = 0;
     const PARK_HOLD_SECONDS = 2.5; // Time stopped in a stall for the parking meter to fill
     let lastUiSec = Math.ceil(timeRemainingRef.current);
@@ -416,12 +415,8 @@ export default function App() {
         setSpeedLimit(currentZoneLimit);
         environment.speedLimitMph = currentZoneLimit;
 
-        // Speeding penalties disabled for testing as requested by user
-        speedViolationTimer = 0;
-
-        // 5b. Pedestrian Collision & Yield Check
+        // 5b. Pedestrian Collision Check
         const hitPed = renderer.checkPedestrianCollision(v);
-        // Hitting a student ends the run immediately
         if (hitPed && v.getSpeedMph() > 1.8) {
           renderer.triggerImpactEffect(hitPed.x, hitPed.y);
           showToast('Pedestrian Struck! You hit a student — Game Over', 'error', 4000);
@@ -476,7 +471,6 @@ export default function App() {
         }
 
         if (!isDocking) {
-          // Smooth decay instead of snapping to 0 on single frame jitter
           holdParkTimer = Math.max(0, holdParkTimer - dt * 2.0);
           setParkingProgress(Math.min(1.0, holdParkTimer / PARK_HOLD_SECONDS));
         }
