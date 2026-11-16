@@ -75,9 +75,18 @@ export class GameRenderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
-    // heading: smoothed vehicle angle the view follows (null = snap on next frame)
-    // rotation: canvas rotation applied so the vehicle always points up the screen
-    this.camera = { x: 9248.7, y: 9788.8, zoom: 1.65, shake: 0, heading: null, rotation: 0, viewRadius: 750 };
+
+    // Tyler's Dynamic Rotation Camera System
+    this.camera = {
+      x: 9248.7,
+      y: 9788.8,
+      zoom: 1.65,
+      shake: 0,
+      heading: null,
+      rotation: 0,
+      viewRadius: 750
+    };
+
     this.parkedCarColors = [
       '#1e293b', '#2563eb', '#dc2626', '#f1f5f9',
       '#0f766e', '#b45309', '#475569', '#334155', '#7c2d12'
@@ -104,6 +113,28 @@ export class GameRenderer {
     this.tireTracks = [];
     this.sparks = [];
     this.leaves = [];
+
+    // Weather (Level 3 "Rainy Exam Day Panic")
+    this.weather = {
+      raining: false,
+      drops: [],
+      splashes: [],
+      lightning: 0,
+      nextLightning: 8
+    };
+    this.onLightning = null; // App hooks thunder audio here
+
+    // --- DEBUG OVERLAY TOGGLE ---
+    this.showDebugOverlay = false;
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (e.key === '=' || e.key === '=') {
+        this.showDebugOverlay = !this.showDebugOverlay;
+        console.log(`[Debug Overlay] ${this.showDebugOverlay ? 'ENABLED' : 'DISABLED'}`);
+      }
+    });
   }
 
   initEntities(map, difficulty = 1, spawnPoint = null) {
@@ -120,7 +151,13 @@ export class GameRenderer {
     this.camera.y = sy;
     this.camera.heading = null;
 
-    // Populate spatial hash grid for trees (128px cells)
+    this.weather.raining = difficulty === 3;
+    this.weather.drops = [];
+    this.weather.splashes = [];
+    this.weather.lightning = 0;
+    this.weather.nextLightning = 6 + Math.random() * 6;
+
+    // Populate spatial hash grid for trees
     this.treeGrid.clear();
     if (map && map.trees) {
       for (const t of map.trees) {
@@ -169,8 +206,7 @@ export class GameRenderer {
       }
     }
 
-    // Initialize Campus AI Traffic Cars on lane loops traced from the real campus roads
-    // (generated offline by backend/generate_ai_routes.py from the Zoom 19 tiles)
+    // Initialize Campus AI Traffic Cars
     this.trafficCars = [];
     const routes = new Map();
     for (const r of map?.traffic_routes || []) {
@@ -180,7 +216,6 @@ export class GameRenderer {
       const path = routes.get(c.route_id);
       if (!path) continue;
       let dist = (c.start_prog || 0) * path.total;
-      // Don't drop a car right on top of the player's spawn
       for (let tries = 0; tries < 20; tries++) {
         const p = samplePath(path, dist);
         if (Math.hypot(p.x - sx, p.y - sy) > 160) break;
@@ -206,7 +241,7 @@ export class GameRenderer {
       this.trafficCars.push(tc);
     }
 
-    // Initialize Campus Student Pedestrians on sidewalk paths traced from the campus tiles
+    // Initialize Campus Student Pedestrians
     this.pedestrians = [];
     const hairColors = ['#451a03', '#78350f', '#0f172a', '#fbbf24', '#171717'];
     const skinColors = ['#fcd34d', '#fed7aa', '#fbcfe8', '#d97706', '#92400e'];
@@ -311,15 +346,7 @@ export class GameRenderer {
           continue;
         }
         const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-
-        // Green lawn grass / landscaping check:
-        // Genuine lawn grass in Concept3D has dominant green saturation:
-        // g > r + 15 && g > b + 15 && g >= 70
         const isGrass = (g > r + 15 && g > b + 15 && g >= 70);
-
-        // If it's grass, it's non-drivable off-road (mask = 0).
-        // Otherwise it's roadway asphalt, concrete, painted lines, street text ("N OAK ST"),
-        // crosswalks, or stall markings, which are 100% drivable (mask = 1)!
         mask[i] = isGrass ? 0 : 1;
       }
 
@@ -329,10 +356,20 @@ export class GameRenderer {
     }
   }
 
+  countOffroadPoints(points) {
+    if (!points || !Array.isArray(points)) return 0;
+    let count = 0;
+    for (const pt of points) {
+      if (this.checkPixelCollisionTile(pt.x, pt.y)) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   isWorldPointDrivable(wx, wy) {
     if (!this.map) return true;
 
-    // 1. All designated campus parking lots are 100% drivable paved asphalt!
     if (this.map.lots) {
       for (const lot of this.map.lots) {
         if (lot.polygon && pointInPoly(wx, wy, lot.polygon)) {
@@ -341,7 +378,6 @@ export class GameRenderer {
       }
     }
 
-    // 2. All designated campus road corridors are 100% drivable!
     if (this.map.roads) {
       for (const road of this.map.roads) {
         const pts = road.points;
@@ -363,7 +399,6 @@ export class GameRenderer {
       }
     }
 
-    // 3. Pixel surface mask (detects actual green lawn grass & offroad soil)
     const originX = this.map.tile_origin_x || 130375;
     const originY = this.map.tile_origin_y || 215420;
     const tx = Math.floor(wx / 512) + originX;
@@ -382,14 +417,13 @@ export class GameRenderer {
   }
 
   checkTreeCollision(wx, wy, radius = 9.0) {
-    // Trees reside exclusively on campus grass landscaping; driving onto grass is handled as an off-road strike
     return null;
   }
 
   checkFootprintCollision(perimeterPoints) {
     if (!this.map) return { collided: false };
 
-    // 1. Building polygons
+    // 1. Building polygons (Tyler's addition)
     if (this.map.buildings) {
       for (const b of this.map.buildings) {
         if (b.polygon && b.polygon.length >= 3) {
@@ -402,16 +436,99 @@ export class GameRenderer {
       }
     }
 
+    // 2. Pixel collision mask checking (Your legacy logic)
+    for (const pt of perimeterPoints) {
+      if (this.checkPixelCollisionTile(pt.x, pt.y)) {
+        return { collided: true, reason: 'curb_or_grass', point: pt };
+      }
+    }
+
     return { collided: false };
   }
 
-  // Number of points sitting on grass / off-road surfaces (drivable, but penalized)
-  countOffroadPoints(points) {
-    let count = 0;
-    for (const pt of points) {
-      if (!this.isWorldPointDrivable(pt.x, pt.y)) count++;
+  getOrLoadZ17CollisionTile(tx, ty) {
+    const key = `17_${tx}_${ty}`;
+    if (!this.collisionTileCache) this.collisionTileCache = {};
+
+    if (this.collisionTileCache[key]) {
+      return this.collisionTileCache[key];
     }
-    return count;
+
+    const tileObj = { loaded: false, ctx: null };
+    this.collisionTileCache[key] = tileObj;
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = `http://localhost:8000/api/maps/collision_tile/${key}.webp`;
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+      tileObj.ctx = ctx;
+      tileObj.loaded = true;
+      console.log(`[Collision Cache] Successfully loaded Z17: ${key}`);
+    };
+
+    img.onerror = () => {
+      tileObj.loaded = true;
+      tileObj.ctx = null;
+      console.warn(`[Collision Cache] Missing Z17 tile image: ${key}`);
+    };
+
+    return tileObj;
+  }
+
+  checkPixelCollisionTile(worldX, worldY) {
+    if (!this.map) return false;
+
+    const tileSize = 512;
+    const originX = (this.map.tile_origin_x || 130375) / 4;
+    const originY = (this.map.tile_origin_y || 215420) / 4;
+
+    const worldX_z17 = worldX / 4;
+    const worldY_z17 = worldY / 4;
+
+    const tileX = Math.floor(worldX_z17 / tileSize + originX);
+    const tileY = Math.floor(worldY_z17 / tileSize + originY);
+
+    const tile = this.getOrLoadZ17CollisionTile(tileX, tileY);
+    if (!tile || !tile.loaded || !tile.ctx) {
+      return false;
+    }
+
+    let px = Math.floor((worldX_z17 + originX * tileSize) % tileSize);
+    let py = Math.floor((worldY_z17 + originY * tileSize) % tileSize);
+
+    if (px < 0) px += tileSize;
+    if (py < 0) py += tileSize;
+
+    const sampleRadius = 2;
+    const startX = Math.max(0, px - sampleRadius);
+    const startY = Math.max(0, py - sampleRadius);
+    const endX = Math.min(tileSize - 1, px + sampleRadius);
+    const endY = Math.min(tileSize - 1, py + sampleRadius);
+
+    const width = endX - startX + 1;
+    const height = endY - startY + 1;
+
+    const imgData = tile.ctx.getImageData(startX, startY, width, height).data;
+    let solidRedCount = 0;
+
+    for (let i = 0; i < imgData.length; i += 4) {
+      const r = imgData[i];
+      const g = imgData[i + 1];
+      const b = imgData[i + 2];
+      const a = imgData[i + 3];
+
+      if (a > 180 && r > 180 && g < 80 && b < 80) {
+        solidRedCount++;
+      }
+    }
+
+    return solidRedCount >= 8;
   }
 
   getObstacleCarOBBs(wx, wy, radius = 68) {
@@ -455,7 +572,6 @@ export class GameRenderer {
 
   triggerTreeImpactEffect(x, y) {
     this.camera.shake = 8.0;
-    // Spawns fluttering green leaves and bark fragments
     for (let i = 0; i < 14; i++) {
       const ang = Math.random() * Math.PI * 2;
       const spd = 20 + Math.random() * 60;
@@ -492,11 +608,9 @@ export class GameRenderer {
       this.camera.shake = Math.max(0, this.camera.shake - dt * 28);
     }
 
-    // Update Campus AI Traffic Cars & Student Pedestrians
     this.updateTrafficCars(dt, vehicle);
     this.updatePedestrians(dt, vehicle);
 
-    // Update collision sparks
     for (let i = this.sparks.length - 1; i >= 0; i--) {
       const sp = this.sparks[i];
       sp.x += sp.vx * dt;
@@ -505,17 +619,17 @@ export class GameRenderer {
       if (sp.life <= 0) this.sparks.splice(i, 1);
     }
 
-    // Update tree leaves
+    if (this.weather.raining) this.updateRain(dt, vehicle);
+
     for (let i = this.leaves.length - 1; i >= 0; i--) {
       const lf = this.leaves[i];
       lf.x += lf.vx * dt;
       lf.y += lf.vy * dt;
-      lf.vy += 45 * dt; // gravity
+      lf.vy += 45 * dt;
       lf.life -= dt;
       if (lf.life <= 0) this.leaves.splice(i, 1);
     }
 
-    // Tire tracks
     if (vehicle && (vehicle.isDrifting || (vehicle.isBraking && vehicle.getSpeedMph() > 12))) {
       this.tireTracks.push({
         x: vehicle.x,
@@ -533,7 +647,6 @@ export class GameRenderer {
       const cosH = Math.cos(radHeading);
       const sinH = Math.sin(radHeading);
 
-      // 1. Check distance to player vehicle ahead in driving lane
       let mustYield = false;
       if (vehicle) {
         const toPlayerX = vehicle.x - tc.x;
@@ -548,8 +661,6 @@ export class GameRenderer {
         }
       }
 
-      // 2. Check distance to other traffic cars ahead in the same direction of travel
-      // (oncoming or crossing cars are ignored so two cars at a merge can't block each other forever)
       if (!mustYield) {
         for (const other of this.trafficCars) {
           if (other.id === tc.id) continue;
@@ -569,7 +680,6 @@ export class GameRenderer {
         }
       }
 
-      // 3. Check distance to pedestrians crossing ahead
       if (!mustYield) {
         for (const ped of this.pedestrians) {
           const toPedX = ped.x - tc.x;
@@ -586,12 +696,10 @@ export class GameRenderer {
         }
       }
 
-      // Slow down for upcoming turns: compare the lane direction here with ~50px ahead
       const ahead = samplePath(tc.path, tc.dist + 50);
       const turn = Math.abs(((ahead.angle - radHeading + 3 * Math.PI) % (2 * Math.PI)) - Math.PI);
       const cruiseSpeed = tc.targetSpeed * (1 - Math.min(0.55, turn * 0.6));
 
-      // Speed control & braking
       if (mustYield) {
         tc.isBraking = true;
         tc.speed = Math.max(0, tc.speed - 150 * dt);
@@ -603,7 +711,6 @@ export class GameRenderer {
         tc.speed = Math.min(cruiseSpeed, tc.speed + 55 * dt);
       }
 
-      // Advance along the lane loop; position always stays on the traced road
       tc.dist = (tc.dist + tc.speed * dt) % tc.path.total;
       placeOnPath(tc);
     }
@@ -619,7 +726,6 @@ export class GameRenderer {
         }
       }
 
-      // Don't walk through a car sitting in the crosswalk ahead (the player's or an AI car)
       if (!yieldToCar) {
         const fwdX = Math.cos(ped.angle);
         const fwdY = Math.sin(ped.angle);
@@ -640,7 +746,6 @@ export class GameRenderer {
         continue;
       }
 
-      // Linger for a moment at either end of the walk before heading back
       if (ped.pause > 0) {
         ped.pause -= dt;
         continue;
@@ -679,7 +784,7 @@ export class GameRenderer {
     this.camera.x += (vehicle.x - this.camera.x) * 0.16;
     this.camera.y += (vehicle.y - this.camera.y) * 0.16;
 
-    // Rotate the view with the vehicle so it always points up the screen
+    // Tyler's Rotating Camera Calculation
     if (this.camera.heading === null) {
       this.camera.heading = vehicle.angle;
     } else {
@@ -687,7 +792,6 @@ export class GameRenderer {
       this.camera.heading += headingDiff * 0.045;
     }
     this.camera.rotation = -Math.PI / 2 - this.camera.heading;
-    // Any rotation can expose the viewport's corners, so cull by its half-diagonal
     this.camera.viewRadius = Math.hypot(width, height) / 2 / this.camera.zoom + 40;
 
     const shakeX = this.camera.shake > 0 ? (Math.random() - 0.5) * this.camera.shake : 0;
@@ -701,33 +805,309 @@ export class GameRenderer {
     ctx.scale(this.camera.zoom, this.camera.zoom);
     ctx.translate(-this.camera.x, -this.camera.y);
 
-    // 1. Concept3D Tiles (Zoom 17 base + Zoom 19 ultra-HD)
     this.renderConcept3DTiles(map, width, height);
-
-    // 2. Tire Marks
     this.renderTireTracks();
 
-    // 3. Dynamic Permit Highlights & Solid Parked Cars
     if (map && map.lots) {
       this.renderStallsAndParkedCars(map.lots, vehicle, permitType, activeDestination, eligibleStall);
     }
 
-    // 4. Campus AI Traffic Cars & Student Pedestrians
     this.renderTrafficCars();
     this.renderPedestrians();
 
-    // 5. Floating Building Landmark Labels & Destination Beacon
     if (map && map.buildings) {
       this.renderBuildingLabels(map.buildings, vehicle, activeDestination);
     }
 
-    // 6. Player Vehicle
-    this.renderPlayerVehicle(vehicle, parkingProgress);
+    if (this.weather.raining) {
+      // Storm overcast: darken the world in screen space, then light it back up with headlights
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = 'rgba(10, 18, 38, 0.42)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.restore();
+      this.renderHeadlights(vehicle);
+    }
 
-    // 7. Impact Sparks & Leaves
+    this.renderPlayerVehicle(vehicle, parkingProgress);
     this.renderSparks();
     this.renderLeaves();
 
+    ctx.restore();
+
+    if (this.weather.raining) this.renderRain(width, height);
+    this.renderMinimap(map, vehicle, activeDestination, width, height);
+  }
+
+  updateRain(dt, vehicle) {
+    const w = this.weather;
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+    const target = Math.round((width * height) / 4200);
+
+    // Car motion pushes the rain toward the bottom of the (heading-up) screen
+    const carPush = vehicle ? Math.max(0, vehicle.speed) * 1.4 : 0;
+
+    while (w.drops.length < target) {
+      w.drops.push({
+        x: Math.random() * (width + 200) - 100,
+        y: Math.random() * height,
+        len: 10 + Math.random() * 18,
+        speed: 700 + Math.random() * 500,
+        alpha: 0.15 + Math.random() * 0.3
+      });
+    }
+    if (w.drops.length > target) w.drops.length = target;
+
+    for (const d of w.drops) {
+      d.y += (d.speed + carPush) * dt;
+      d.x -= d.speed * 0.18 * dt;
+      if (d.y > height + 30 || d.x < -100) {
+        d.y = -30 - Math.random() * 60;
+        d.x = Math.random() * (width + 200);
+      }
+    }
+
+    for (let i = 0; i < Math.round(60 * dt * 10); i++) {
+      if (Math.random() < 0.5) {
+        w.splashes.push({ x: Math.random() * width, y: Math.random() * height, r: 1, life: 0.35 });
+      }
+    }
+    for (let i = w.splashes.length - 1; i >= 0; i--) {
+      const sp = w.splashes[i];
+      sp.r += 22 * dt;
+      sp.life -= dt;
+      if (sp.life <= 0) w.splashes.splice(i, 1);
+    }
+
+    w.lightning = Math.max(0, w.lightning - dt * 2.2);
+    w.nextLightning -= dt;
+    if (w.nextLightning <= 0) {
+      w.lightning = 1;
+      w.nextLightning = 10 + Math.random() * 14;
+      if (this.onLightning) this.onLightning();
+    }
+  }
+
+  renderHeadlights(v) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.translate(v.x, v.y);
+    ctx.rotate(v.angle);
+    ctx.globalCompositeOperation = 'lighter';
+    const reach = 170;
+    const grad = ctx.createRadialGradient(14, 0, 4, 14, 0, reach);
+    grad.addColorStop(0, 'rgba(255, 236, 180, 0.32)');
+    grad.addColorStop(0.5, 'rgba(255, 236, 180, 0.12)');
+    grad.addColorStop(1, 'rgba(255, 236, 180, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(14, -6);
+    ctx.lineTo(14 + reach, -reach * 0.42);
+    ctx.lineTo(14 + reach, reach * 0.42);
+    ctx.lineTo(14, 6);
+    ctx.closePath();
+    ctx.fill();
+
+    // Red tail-light glow on the wet road
+    const tail = ctx.createRadialGradient(-16, 0, 1, -16, 0, 26);
+    tail.addColorStop(0, v.isBraking ? 'rgba(255, 40, 40, 0.45)' : 'rgba(255, 40, 40, 0.18)');
+    tail.addColorStop(1, 'rgba(255, 40, 40, 0)');
+    ctx.fillStyle = tail;
+    ctx.beginPath();
+    ctx.arc(-16, 0, 26, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  renderRain(width, height) {
+    const ctx = this.ctx;
+    const w = this.weather;
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 1.2;
+    for (const d of w.drops) {
+      ctx.strokeStyle = `rgba(190, 210, 240, ${d.alpha})`;
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x + d.len * 0.18, d.y - d.len);
+      ctx.stroke();
+    }
+    ctx.lineWidth = 1;
+    for (const sp of w.splashes) {
+      ctx.strokeStyle = `rgba(200, 220, 255, ${(sp.life / 0.35) * 0.35})`;
+      ctx.beginPath();
+      ctx.ellipse(sp.x, sp.y, sp.r, sp.r * 0.45, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    if (w.lightning > 0) {
+      // Double-flicker flash
+      const flicker = w.lightning > 0.7 || (w.lightning > 0.35 && w.lightning < 0.5) ? w.lightning : w.lightning * 0.3;
+      ctx.fillStyle = `rgba(230, 236, 255, ${flicker * 0.55})`;
+      ctx.fillRect(0, 0, width, height);
+    }
+    ctx.restore();
+  }
+
+  renderMinimap(map, vehicle, activeDestination, width, height) {
+    if (!map) return;
+    const ctx = this.ctx;
+    const R = Math.round(Math.min(95, width * 0.11, height * 0.15));
+    if (R < 50) return;
+    const cx = width - 16 - R;
+    const cy = height / 2 - 20;
+    const range = 1700; // world px from car to minimap rim
+    const scale = R / range;
+    const originX = map.tile_origin_x || 130375;
+    const originY = map.tile_origin_y || 215420;
+
+    const destBldg = activeDestination && map.buildings
+      ? map.buildings.find(b => b.id === activeDestination.building_id)
+      : null;
+    const targetLotIds = new Set(activeDestination?.target_lot_ids || []);
+
+    ctx.save();
+    // Frame
+    ctx.beginPath();
+    ctx.arc(cx, cy, R + 4, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(255, 199, 44, 0.75)';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.clip();
+
+    // World layer, rotated to match the heading-up camera
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(this.camera.rotation);
+    ctx.scale(scale, scale);
+    ctx.translate(-vehicle.x, -vehicle.y);
+
+    ctx.fillStyle = COLORS.grassFallback;
+    ctx.fillRect(vehicle.x - range * 1.5, vehicle.y - range * 1.5, range * 3, range * 3);
+
+    const minTx = Math.floor(((vehicle.x - range * 1.5) / 512 + originX) / 4);
+    const maxTx = Math.floor(((vehicle.x + range * 1.5) / 512 + originX) / 4);
+    const minTy = Math.floor(((vehicle.y - range * 1.5) / 512 + originY) / 4);
+    const maxTy = Math.floor(((vehicle.y + range * 1.5) / 512 + originY) / 4);
+    ctx.globalAlpha = 0.8;
+    for (let tx = minTx; tx <= maxTx; tx++) {
+      for (let ty = minTy; ty <= maxTy; ty++) {
+        const entry = this.getOrLoadZ17Tile(tx, ty);
+        if (entry && entry.loaded) {
+          ctx.drawImage(entry.img, (tx * 4 - originX) * 512, (ty * 4 - originY) * 512, 2048, 2048);
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    // Target lots
+    if (map.lots && targetLotIds.size) {
+      const pulse = 0.35 + 0.2 * Math.sin(performance.now() / 300);
+      ctx.fillStyle = `rgba(16, 185, 129, ${pulse})`;
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.95)';
+      ctx.lineWidth = 3 / scale;
+      for (const lot of map.lots) {
+        if (!targetLotIds.has(lot.id) || !lot.polygon) continue;
+        ctx.beginPath();
+        lot.polygon.forEach(([px, py], i) => (i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+    }
+
+    // Destination building
+    if (destBldg) {
+      const [bx, by, bw, bh] = destBldg.rect;
+      ctx.fillStyle = '#FFC72C';
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2 / scale;
+      ctx.strokeRect(bx, by, bw, bh);
+    }
+
+    // Traffic & pedestrians
+    ctx.fillStyle = '#ef4444';
+    for (const tc of this.trafficCars) {
+      ctx.beginPath();
+      ctx.arc(tc.x, tc.y, 3.2 / scale, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#f8fafc';
+    for (const ped of this.pedestrians) {
+      ctx.beginPath();
+      ctx.arc(ped.x, ped.y, 1.8 / scale, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Player arrow
+    ctx.save();
+    ctx.translate(vehicle.x, vehicle.y);
+    ctx.rotate(vehicle.angle);
+    ctx.scale(1 / scale, 1 / scale);
+    ctx.fillStyle = '#FFC72C';
+    ctx.strokeStyle = '#00573D';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(8, 0);
+    ctx.lineTo(-6, -5.5);
+    ctx.lineTo(-3, 0);
+    ctx.lineTo(-6, 5.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.restore(); // world layer
+    ctx.restore(); // clip
+
+    // Off-screen destination: gold pip on the rim pointing toward it
+    if (destBldg) {
+      const bx = destBldg.rect[0] + destBldg.rect[2] / 2;
+      const by = destBldg.rect[1] + destBldg.rect[3] / 2;
+      const dist = Math.hypot(bx - vehicle.x, by - vehicle.y);
+      if (dist * scale > R - 6) {
+        const a = Math.atan2(by - vehicle.y, bx - vehicle.x) + this.camera.rotation;
+        ctx.save();
+        ctx.translate(cx + Math.cos(a) * (R - 2), cy + Math.sin(a) * (R - 2));
+        ctx.rotate(a);
+        ctx.fillStyle = '#FFC72C';
+        ctx.strokeStyle = '#020617';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(6, 0);
+        ctx.lineTo(-6, -6);
+        ctx.lineTo(-6, 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    // North marker
+    const na = -Math.PI / 2 + this.camera.rotation;
+    ctx.save();
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const nx = cx + Math.cos(na) * (R + 4);
+    const ny = cy + Math.sin(na) * (R + 4);
+    ctx.fillStyle = '#020617';
+    ctx.beginPath();
+    ctx.arc(nx, ny, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#FFC72C';
+    ctx.fillText('N', nx, ny + 0.5);
+
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillStyle = 'rgba(255, 199, 44, 0.9)';
+    ctx.fillText('CAMPUS RADAR', cx, cy + R + 16);
     ctx.restore();
   }
 
@@ -749,7 +1129,6 @@ export class GameRenderer {
     const minWy = this.camera.y - halfH;
     const maxWy = this.camera.y + halfH;
 
-    // Zoom 17 overview
     const minTx17 = Math.floor((minWx / 512 + originX) / 4);
     const maxTx17 = Math.floor((maxWx / 512 + originX) / 4);
     const minTy17 = Math.floor((minWy / 512 + originY) / 4);
@@ -766,7 +1145,6 @@ export class GameRenderer {
       }
     }
 
-    // Zoom 19 native tiles
     const minTx19 = Math.max(originX, Math.floor(minWx / 512) + originX);
     const maxTx19 = Math.min(originX + 24, Math.floor(maxWx / 512) + originX);
     const minTy19 = Math.max(originY, Math.floor(minWy / 512) + originY);
@@ -779,6 +1157,23 @@ export class GameRenderer {
           const drawX = (tx - originX) * 512;
           const drawY = (ty - originY) * 512;
           ctx.drawImage(entry.img, drawX, drawY, 512, 512);
+        }
+      }
+    }
+
+    if (this.showDebugOverlay) {
+      for (let tx17 = minTx17; tx17 <= maxTx17; tx17++) {
+        for (let ty17 = minTy17; ty17 <= maxTy17; ty17++) {
+          const colTile = this.getOrLoadZ17CollisionTile(tx17, ty17);
+          if (colTile && colTile.loaded && colTile.ctx) {
+            const drawX = (tx17 * 4 - originX) * 512;
+            const drawY = (ty17 * 4 - originY) * 512;
+
+            ctx.save();
+            ctx.globalAlpha = 0.45;
+            ctx.drawImage(colTile.ctx.canvas, drawX, drawY, 2048, 2048);
+            ctx.restore();
+          }
         }
       }
     }
@@ -804,13 +1199,11 @@ export class GameRenderer {
     const ctx = this.ctx;
     const targetLotIds = new Set(activeDestination?.target_lot_ids || []);
 
-    // 1. Dynamic Highlights on Open Stalls near the Player
     for (const lot of lots) {
       if (!lot.stalls) continue;
       const isTargetLot = targetLotIds.size === 0 || targetLotIds.has(lot.id);
 
       for (const stall of lot.stalls) {
-        // stall.x and stall.y are the true center coordinates!
         const cx = stall.x;
         const cy = stall.y;
 
@@ -827,7 +1220,6 @@ export class GameRenderer {
 
         ctx.save();
         ctx.translate(cx, cy);
-        // stall.angle is the longitudinal axis (along divider lines)
         ctx.rotate(((stall.angle || 0) * Math.PI) / 180);
 
         const halfL = stall.height / 2;
@@ -858,7 +1250,6 @@ export class GameRenderer {
             ctx.fill();
           }
         } else {
-          // Restricted stall for player's current permit: always visible on screen in its permit color
           ctx.fillStyle = `${stallColor}1F`;
           ctx.fillRect(-halfL, -halfW, stall.height, stall.width);
 
@@ -866,7 +1257,6 @@ export class GameRenderer {
           ctx.lineWidth = 1.4;
           ctx.strokeRect(-halfL, -halfW, stall.height, stall.width);
 
-          // Tag dot indicating the restricted stall type (Red for faculty, Burgundy for resident, etc.)
           ctx.fillStyle = stallColor;
           ctx.beginPath();
           ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
@@ -877,7 +1267,6 @@ export class GameRenderer {
       }
     }
 
-    // 2. Solid Parked Vehicles (cleanly fitting between painted lines!)
     for (const pc of this.occupiedStalls) {
       if (Math.abs(pc.cx - this.camera.x) > this.camera.viewRadius || Math.abs(pc.cy - this.camera.y) > this.camera.viewRadius) {
         continue;
@@ -940,7 +1329,6 @@ export class GameRenderer {
       ctx.translate(tc.x, tc.y);
       ctx.rotate((tc.heading * Math.PI) / 180);
 
-      // Subtle headlight beam
       const beamGrad = ctx.createRadialGradient(tc.length / 2, 0, 4, tc.length / 2 + 50, 0, 55);
       beamGrad.addColorStop(0, 'rgba(254, 240, 138, 0.16)');
       beamGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
@@ -953,34 +1341,28 @@ export class GameRenderer {
       ctx.closePath();
       ctx.fill();
 
-      // Shadow
       ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
       ctx.beginPath();
       ctx.roundRect(-tc.length / 2 + 2, -tc.width / 2 + 2, tc.length, tc.width, 3.5);
       ctx.fill();
 
-      // Car body
       ctx.fillStyle = tc.color;
       ctx.beginPath();
       ctx.roundRect(-tc.length / 2, -tc.width / 2, tc.length, tc.width, 3.5);
       ctx.fill();
 
-      // Windshield & Cabin Glass
       ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
       ctx.beginPath();
       ctx.roundRect(-tc.length * 0.28, -tc.width * 0.38, tc.length * 0.56, tc.width * 0.76, 2);
       ctx.fill();
 
-      // Roof color insert
       ctx.fillStyle = tc.color;
       ctx.fillRect(-tc.length * 0.14, -tc.width * 0.32, tc.length * 0.28, tc.width * 0.64);
 
-      // Front headlights
       ctx.fillStyle = '#fef08a';
       ctx.fillRect(tc.length / 2 - 2, -tc.width / 2 + 1.2, 2, 2.8);
       ctx.fillRect(tc.length / 2 - 2, tc.width / 2 - 4.0, 2, 2.8);
 
-      // Rear taillights
       if (tc.isBraking) {
         ctx.fillStyle = '#ff1a1a';
         ctx.fillRect(-tc.length / 2 - 0.8, -tc.width / 2 + 1.2, 2.2, 3.2);
@@ -1005,7 +1387,6 @@ export class GameRenderer {
       ctx.translate(ped.x, ped.y);
       ctx.rotate(ped.angle);
 
-      // Subtle drop shadow
       ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
       ctx.beginPath();
       ctx.ellipse(0, 1, 4.5, 3.5, 0, 0, Math.PI * 2);
@@ -1013,36 +1394,30 @@ export class GameRenderer {
 
       const swing = Math.sin(ped.walkPhase) * 2.8;
 
-      // Animated Feet / Legs
       ctx.fillStyle = ped.pantsColor;
       ctx.fillRect(-2 + swing, -3.2, 3.8, 2);
       ctx.fillRect(-2 - swing, 1.2, 3.8, 2);
 
-      // Student Torso / T-Shirt
       ctx.fillStyle = ped.shirtColor;
       ctx.beginPath();
       ctx.roundRect(-2.8, -3.8, 5.6, 7.6, 2);
       ctx.fill();
 
-      // Backpack
       ctx.fillStyle = ped.backpackColor;
       ctx.beginPath();
       ctx.roundRect(-4.8, -2.5, 2.6, 5.0, 1.2);
       ctx.fill();
 
-      // Head
       ctx.fillStyle = ped.skinColor;
       ctx.beginPath();
       ctx.arc(0.5, 0, 2.6, 0, Math.PI * 2);
       ctx.fill();
 
-      // Hair
       ctx.fillStyle = ped.hairColor;
       ctx.beginPath();
       ctx.arc(-0.2, 0, 2.4, Math.PI * 0.4, Math.PI * 1.6);
       ctx.fill();
 
-      // Alert badge if yielding
       if (ped.isYielding) {
         ctx.fillStyle = '#ef4444';
         ctx.beginPath();
@@ -1075,6 +1450,7 @@ export class GameRenderer {
       ctx.translate(cx, cy);
       ctx.rotate(-this.camera.rotation);
       ctx.translate(-cx, -cy);
+
       if (isTarget) {
         const pulse = (Math.sin(Date.now() / 220) + 1) / 2;
         ctx.strokeStyle = COLORS.seluGold;

@@ -113,6 +113,12 @@ export class VehiclePhysics {
     this.isOffroad = false; // Two or more corners on grass / off-road surface
     this.reverseHoldTimer = 0;
     this.brakeFromMotion = false; // Current brake press began while moving forward
+
+    // Wet-road handling (Level 3 rain): the direction of travel lags behind where the
+    // car is pointing, so the rear steps out in corners and braking distances grow.
+    this.wet = false;
+    this.travelAngle = this.angle;
+    this.slipAngle = 0;
   }
 
   reset(x, y, headingDeg = 50) {
@@ -129,6 +135,8 @@ export class VehiclePhysics {
     this.cruiseTargetSpeed = 0;
     this.reverseHoldTimer = 0;
     this.brakeFromMotion = false;
+    this.travelAngle = this.angle;
+    this.slipAngle = 0;
   }
 
   toggleCruise() {
@@ -164,6 +172,7 @@ export class VehiclePhysics {
     // 2. Throttle & Braking with intuitive speed control
     this.isBraking = false;
     const { throttle, brake, handbrake, precisionMode } = this.inputs;
+    const grip = this.wet ? 0.55 : 1.0; // Brake effectiveness on wet pavement
 
     // Cancel cruise control on active braking
     if (brake > 0 || handbrake) {
@@ -192,7 +201,7 @@ export class VehiclePhysics {
       this.isBraking = true;
       if (Math.abs(this.speed) > 2.0) {
         const sign = Math.sign(this.speed);
-        this.speed -= sign * this.handbrakeRate * dt;
+        this.speed -= sign * this.handbrakeRate * grip * dt;
         if (Math.sign(this.speed) !== sign) this.speed = 0;
       } else {
         this.speed = 0;
@@ -217,7 +226,7 @@ export class VehiclePhysics {
     } else if (brake > 0) {
       if (this.speed > 4.0) {
         // Active forward braking
-        this.speed -= this.brakeRate * dt;
+        this.speed -= this.brakeRate * grip * dt;
         this.isBraking = true;
         this.reverseHoldTimer = 0;
         this.brakeFromMotion = true;
@@ -257,7 +266,8 @@ export class VehiclePhysics {
       }
     }
 
-    this.isDrifting = Boolean(handbrake && Math.abs(this.speed) > 75);
+    this.isDrifting = Boolean(handbrake && Math.abs(this.speed) > 75) ||
+      (this.wet && Math.abs(this.slipAngle) > 0.12 && Math.abs(this.speed) > 60);
 
     // 3. Sub-stepped kinematic & collision integration
     const steps = 3;
@@ -275,8 +285,20 @@ export class VehiclePhysics {
         this.angle = (this.angle + angularVelocity * subDt + Math.PI * 2) % (Math.PI * 2);
       }
 
-      const moveDx = Math.cos(this.angle) * this.speed * subDt;
-      const moveDy = Math.sin(this.angle) * this.speed * subDt;
+      if (this.wet && this.speed > 30) {
+        // Tires regain grip quickly at low speed, slowly at high speed
+        const speedFactor = Math.min(1, (this.speed - 30) / 150);
+        const gripRate = 14 - 10 * speedFactor;
+        const diff = Math.atan2(Math.sin(this.angle - this.travelAngle), Math.cos(this.angle - this.travelAngle));
+        this.travelAngle += diff * Math.min(1, gripRate * subDt);
+        this.slipAngle = Math.atan2(Math.sin(this.angle - this.travelAngle), Math.cos(this.angle - this.travelAngle));
+      } else {
+        this.travelAngle = this.angle;
+        this.slipAngle = 0;
+      }
+
+      const moveDx = Math.cos(this.travelAngle) * this.speed * subDt;
+      const moveDy = Math.sin(this.travelAngle) * this.speed * subDt;
       this.x += moveDx;
       this.y += moveDy;
 
@@ -299,6 +321,7 @@ export class VehiclePhysics {
         if (hitCar) {
           this.speed = -this.speed * 0.28;
           this.cruiseActive = false;
+          this.travelAngle = this.angle;
           if (!collisionEvent) {
             collisionEvent = {
               type: 'vehicle_collision',
@@ -313,42 +336,52 @@ export class VehiclePhysics {
       }
 
       // Trees are on grass landscaping: driving onto grass is handled as an off-road strike below
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//can drive on grass hitbox logic. hitting building logic does not work
+// B. Solid Building Collision (Hard stop on actual buildings only)
+if (environment.checkFootprintCollision) {
+  const check = environment.checkFootprintCollision(this.getPerimeterPoints());
+  
+  // Only trigger a hard physics stop if the reason is a building collision
+  if (check.collided && check.reason === 'building') {
+    this.x = prevX;
+    this.y = prevY;
+    this.angle = prevAngle;
+    this.travelAngle = prevAngle;
 
-      // B. Solid Building Collision
-      if (environment.checkFootprintCollision) {
-        const check = environment.checkFootprintCollision(this.getPerimeterPoints());
-        if (check.collided) {
-          this.x = prevX;
-          this.y = prevY;
-          this.angle = prevAngle;
-
-          // Try sliding
-          this.x = prevX + moveDx * 0.5;
-          if (environment.checkFootprintCollision(this.getPerimeterPoints()).collided) {
-            this.x = prevX;
-            this.y = prevY + moveDy * 0.5;
-            if (environment.checkFootprintCollision(this.getPerimeterPoints()).collided) {
-              this.y = prevY;
-              this.speed = -this.speed * 0.22;
-              this.cruiseActive = false;
-            } else {
-              this.speed *= 0.78;
-            }
-          } else {
-            this.speed *= 0.78;
-          }
-
-          if (!collisionEvent && impactMph >= 3.5) {
-            collisionEvent = {
-              type: check.reason,
-              impactMph,
-              x: check.point ? check.point.x : this.x,
-              y: check.point ? check.point.y : this.y
-            };
-          }
-          break;
-        }
+    // Try sliding along building wall
+    this.x = prevX + moveDx * 0.5;
+    if (environment.checkFootprintCollision(this.getPerimeterPoints()).collided) {
+      this.x = prevX;
+      this.y = prevY + moveDy * 0.5;
+      if (environment.checkFootprintCollision(this.getPerimeterPoints()).collided) {
+        this.y = prevY;
+        this.speed = -this.speed * 0.22;
+        this.cruiseActive = false;
+      } else {
+        this.speed *= 0.78;
       }
+    } else {
+      this.speed *= 0.78;
+    }
+
+    if (!collisionEvent && impactMph >= 3.5) {
+      collisionEvent = {
+        type: 'building',
+        impactMph,
+        x: check.point ? check.point.x : this.x,
+        y: check.point ? check.point.y : this.y
+      };
+    }
+    break;
+  }
+}
+//
+//End of drive on gras hitbox logic
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//
+//
+
     }
 
     // C. Grass / off-road surface: drivable, but flagged so a strike can be issued

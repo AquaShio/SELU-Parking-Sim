@@ -1,5 +1,5 @@
 import datetime
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict
 
 
@@ -32,5 +32,6 @@ class RunOut(BaseModel):
     strikes: int = 0
     alignment_offset: Optional[float] = None
     score: int = 0
+    score_breakdown: Optional[List[dict]] = None  # Only filled in on the finish response
 
     model_config = ConfigDict(from_attributes=True)

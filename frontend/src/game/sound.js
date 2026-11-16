@@ -365,6 +365,79 @@ class SoundManager {
     osc1.stop(now + 0.25);
     osc2.stop(now + 0.25);
   }
+
+  makeNoiseBuffer(seconds, brown = false) {
+    const len = Math.floor(this.ctx.sampleRate * seconds);
+    const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < len; i++) {
+      const white = Math.random() * 2 - 1;
+      if (brown) {
+        last = (last + 0.02 * white) / 1.02;
+        data[i] = last * 3.5;
+      } else {
+        data[i] = white;
+      }
+    }
+    return buf;
+  }
+
+  // Steady rainfall bed: looped noise through a band-pass, faded in
+  startRain() {
+    if (!this.ctx || this.rainSource) return;
+    const now = this.ctx.currentTime;
+    this.rainSource = this.ctx.createBufferSource();
+    this.rainSource.buffer = this.makeNoiseBuffer(3);
+    this.rainSource.loop = true;
+    const hp = this.ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.setValueAtTime(900, now);
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(6500, now);
+    this.rainGain = this.ctx.createGain();
+    this.rainGain.gain.setValueAtTime(0, now);
+    this.rainGain.gain.linearRampToValueAtTime(0.12, now + 1.5);
+    this.rainSource.connect(hp);
+    hp.connect(lp);
+    lp.connect(this.rainGain);
+    this.rainGain.connect(this.masterGain);
+    this.rainSource.start(now);
+  }
+
+  stopRain() {
+    if (!this.ctx || !this.rainSource) return;
+    const now = this.ctx.currentTime;
+    const src = this.rainSource;
+    this.rainGain.gain.cancelScheduledValues(now);
+    this.rainGain.gain.setTargetAtTime(0, now, 0.25);
+    src.stop(now + 1.2);
+    this.rainSource = null;
+    this.rainGain = null;
+  }
+
+  // Rolling thunder: low-passed brown noise with a sharp crack and a long decay
+  playThunder() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime + 0.25 + Math.random() * 0.6; // sound lags the flash
+    const src = this.ctx.createBufferSource();
+    src.buffer = this.makeNoiseBuffer(4.5, true);
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(900, now);
+    lp.frequency.exponentialRampToValueAtTime(140, now + 3.5);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.9, now + 0.06);
+    gain.gain.exponentialRampToValueAtTime(0.35, now + 0.6);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 4.3);
+    src.connect(lp);
+    lp.connect(gain);
+    gain.connect(this.masterGain);
+    src.start(now);
+    src.stop(now + 4.5);
+  }
 }
 
 export const sounds = new SoundManager();

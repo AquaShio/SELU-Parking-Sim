@@ -119,3 +119,23 @@ def test_player_and_runs_flow():
     csv_text = resp_csv.text
     assert "timestamp_s" in csv_text
     assert "14.8" in csv_text
+
+
+def test_finish_returns_score_breakdown():
+    run = client.post("/api/runs", json={"map_id": "selu_campus", "permit_type": "freshman", "difficulty": 2}).json()
+    resp = client.post(
+        f"/api/runs/{run['id']}/finish",
+        json={"result": "parked", "time_to_park": 40, "strikes": 1, "alignment_offset": 0.2},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    items = body["score_breakdown"]
+    labels = [i["label"] for i in items]
+    assert labels[0] == "Parked legally"
+    assert any(l.startswith("Difficulty") for l in labels)
+    # Line items add up to the final score
+    assert sum(i["points"] for i in items) == body["score"]
+
+    # Run history lists the finished run
+    history = client.get("/api/runs").json()
+    assert any(r["id"] == run["id"] and r["result"] == "parked" for r in history)

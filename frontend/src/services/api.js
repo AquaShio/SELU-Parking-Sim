@@ -106,6 +106,17 @@ export async function logEvent(runId, t, eventType, details = null) {
   }
 }
 
+export async function fetchRecentRuns(limit = 6) {
+  try {
+    const res = await fetch(`${BASE_URL}/runs?limit=${limit}`, { credentials: 'include' });
+    if (!res.ok) throw new Error('Failed to fetch runs');
+    return await res.json();
+  } catch (err) {
+    console.warn('API error (fetchRecentRuns):', err);
+    return [];
+  }
+}
+
 export function getExportCsvUrl(runId) {
   return `${BASE_URL}/runs/${runId}/export.csv`;
 }

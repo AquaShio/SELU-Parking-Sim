@@ -73,6 +73,23 @@ export function DebriefModal({
             {runData?.score || 0}
           </div>
           <div className="text-xs text-slate-300">Points Awarded</div>
+
+          {runData?.score_breakdown?.length > 0 && (
+            <div className="w-full mt-4 pt-3 border-t border-emerald-500/20 flex flex-col gap-1.5">
+              {runData.score_breakdown.map((item, i) => (
+                <div
+                  key={i}
+                  className="flex justify-between text-xs score-line"
+                  style={{ animationDelay: `${0.15 + i * 0.18}s` }}
+                >
+                  <span className="text-slate-300">{item.label}</span>
+                  <span className={`font-mono-code font-bold ${item.points < 0 ? 'text-red-400' : 'text-emerald-300'}`}>
+                    {item.points >= 0 ? '+' : ''}{item.points}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Run Details Grid */}

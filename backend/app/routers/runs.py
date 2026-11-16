@@ -7,7 +7,7 @@ from app.dependencies import get_current_player
 from app.models.player import Player
 from app.models.run import Run
 from app.schemas.run import RunStart, RunFinish, RunOut
-from app.services.scoring import calculate_score
+from app.services.scoring import calculate_score_breakdown
 
 router = APIRouter(prefix="/runs", tags=["Runs"])
 
@@ -52,11 +52,13 @@ def finish_run(
     run.time_to_park = data.time_to_park
     run.strikes = data.strikes
     run.alignment_offset = data.alignment_offset
-    run.score = calculate_score(data, run.difficulty)
+    run.score, breakdown = calculate_score_breakdown(data, run.difficulty)
 
     db.commit()
     db.refresh(run)
-    return run
+    out = RunOut.model_validate(run)
+    out.score_breakdown = breakdown
+    return out
 
 
 @router.get("", response_model=List[RunOut])

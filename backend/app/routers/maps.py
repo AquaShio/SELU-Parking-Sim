@@ -7,7 +7,7 @@ from app.services.map_loader import load_map, list_maps, load_permits, load_diff
 
 router = APIRouter(prefix="/maps", tags=["Maps"])
 
-# Updated directory paths for raw rendering tiles and collision mask tiles
+# Directory paths for raw rendering tiles and collision mask tiles
 RAW_TILES_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "raw_tiles"
 COLLISION_TILES_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "collision_tiles"
 
@@ -30,6 +30,33 @@ def get_difficulty_config():
     return load_difficulty()
 
 
+# 1. Collision tile mask endpoint (RESTORED LEGACY ROUTE)
+@router.get("/collision_tile/{tile_name}")
+def get_collision_tile(tile_name: str):
+    if not tile_name.endswith(".webp"):
+        tile_name = f"{tile_name}.webp"
+
+    cache_file = COLLISION_TILES_DIR / tile_name
+
+    if not cache_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Collision tile missing at: {cache_file.resolve()}"
+        )
+
+    data = cache_file.read_bytes()
+    return Response(
+        content=data,
+        media_type="image/webp",
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+        },
+    )
+
+
+# 2. Visual rendering map tiles endpoint
 @router.get("/tiles/{z}/{x}/{y_xyz}")
 def get_concept3d_tile(z: int, x: int, y_xyz: int):
     if z < 14 or z > 21:
@@ -69,6 +96,7 @@ def get_concept3d_tile(z: int, x: int, y_xyz: int):
         raise HTTPException(status_code=404, detail="Tile not found") from exc
 
 
+# 3. Dynamic map details route (MUST be defined last)
 @router.get("/{map_id}", response_model=MapOut)
 def get_map_details(map_id: str):
     map_data = load_map(map_id)
