@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { fetchMap, fetchPlayer, fetchPermitsConfig, fetchDifficultyConfig, fetchRecentRuns, startRun, finishRun, logEvent } from './services/api';
+import { fetchMap, saveMap, fetchPlayer, fetchPermitsConfig, fetchDifficultyConfig, fetchRecentRuns, startRun, finishRun, logEvent } from './services/api';
 import { VehiclePhysics } from './game/physics';
 import { GameRenderer } from './game/renderer';
 import { TelemetryCollector } from './game/telemetryCollector';
@@ -7,6 +7,8 @@ import { sounds } from './game/sound';
 import { HUD } from './components/HUD';
 import { MissionSelect } from './components/MissionSelect';
 import { DebriefModal } from './components/DebriefModal';
+import { MapEditor } from './editor/MapEditor';
+import { EditorState } from './editor/editorState';
 
 export default function App() {
   const canvasRef = useRef(null);
@@ -53,6 +55,12 @@ export default function App() {
   const strikesRef = useRef(0);
   const activeRunIdRef = useRef(null);
   const activeDestinationRef = useRef(null);
+
+  // Map editor (press = while driving): freezes the run and edits a working copy of the map
+  const editorRef = useRef(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editorVersion, setEditorVersion] = useState(0);
+  const [savingMap, setSavingMap] = useState(false);
 
   const showToast = useCallback((message, severity = 'warning', durationMs = 2400) => {
     setAlertToast({ message, severity });
@@ -123,11 +131,72 @@ export default function App() {
     });
   }, []);
 
+  const openEditor = useCallback(() => {
+    const renderer = rendererRef.current;
+    if (!renderer || !mapData) return;
+    const v = vehicleRef.current;
+    v.inputs.throttle = 0; v.inputs.brake = 0; v.inputs.steer = 0; v.inputs.handbrake = false;
+    sounds.stopEngine();
+    editorRef.current = new EditorState(mapData, {
+      camera: renderer.camera,
+      activeDestinationId: activeDestinationRef.current?.id,
+      onChange: () => setEditorVersion((n) => n + 1)
+    });
+    setIsEditing(true);
+  }, [mapData]);
+
+  const closeEditor = useCallback(() => {
+    const ed = editorRef.current;
+    if (!ed) return;
+    if (ed.dirty && !window.confirm('You have unsaved map changes. Discard them and go back to driving?')) return;
+    editorRef.current = null;
+    setIsEditing(false);
+    const renderer = rendererRef.current;
+    if (renderer) {
+      const v = vehicleRef.current;
+      renderer.camera.zoom = cameraZoom;
+      renderer.camera.x = v.x;
+      renderer.camera.y = v.y;
+      renderer.camera.heading = null;
+    }
+  }, [cameraZoom]);
+
+  const handleSaveMap = useCallback(async () => {
+    const ed = editorRef.current;
+    if (!ed || savingMap) return;
+    setSavingMap(true);
+    try {
+      await saveMap('selu_campus', ed.toMap());
+      const fresh = await fetchMap('selu_campus');
+      setMapData(fresh);
+      rendererRef.current?.refreshMap(fresh, activeDifficulty);
+      const destId = activeDestinationRef.current?.id;
+      const dest = destId && fresh.destinations?.find((d) => d.id === destId);
+      if (dest) {
+        activeDestinationRef.current = dest;
+        setActiveDestination(dest);
+      }
+      ed.dirty = false;
+      ed.flash('Saved to selu_campus.json (old version kept as selu_campus.json.bak).');
+    } catch (err) {
+      ed.flash(err.message || 'Save failed');
+    } finally {
+      setSavingMap(false);
+    }
+  }, [savingMap, activeDifficulty]);
+
   // Keyboard controls listener
   useEffect(() => {
     const keys = {};
 
     function handleKeyDown(e) {
+      const tag = e.target?.tagName;
+      if (e.key === '=' && gameState === 'playing' && tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+        e.preventDefault();
+        if (editorRef.current) closeEditor(); else openEditor();
+        return;
+      }
+      if (editorRef.current) return; // the map editor handles its own keys
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
         e.preventDefault();
       }
@@ -180,7 +249,7 @@ export default function App() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [gameState, handleResetVehicle, handleToggleCruise]);
+  }, [gameState, handleResetVehicle, handleToggleCruise, openEditor, closeEditor]);
 
   // Window resize handler for canvas
   useEffect(() => {
@@ -198,6 +267,8 @@ export default function App() {
   // Start Run callback
   const handleStartMission = async ({ permitType, destination, difficulty }) => {
     sounds.init();
+    editorRef.current = null;
+    setIsEditing(false);
     setActivePermit(permitType);
     setActiveDestination(destination);
     setActiveDifficulty(difficulty);
@@ -328,6 +399,14 @@ export default function App() {
     }
 
     function loop(currentTime) {
+      // Map editor open: the run is frozen (no physics, timer or strikes); only draw the editor
+      if (editorRef.current && rendererRef.current) {
+        lastTime = currentTime;
+        rendererRef.current.renderEditor(editorRef.current, vehicleRef.current);
+        animId = requestAnimationFrame(loop);
+        return;
+      }
+
       const dt = Math.min((currentTime - lastTime) / 1000, 0.05);
       lastTime = currentTime;
       simTime += dt;
@@ -371,10 +450,13 @@ export default function App() {
             sounds.playCurbThud();
             if (collisionStrikeCooldown <= 0) {
               collisionStrikeCooldown = 1.6;
+              const isWall = collisionEvent.reason === 'solid';
               issueStrike(
-                'building_collision_strike',
+                isWall ? 'wall_collision_strike' : 'building_collision_strike',
                 { impact_mph: Math.round(collisionEvent.impactMph) },
-                'Building Collision! Stay on campus roadways — Strike Issued'
+                isWall
+                  ? 'Wall Collision! Watch the curbs and barriers — Strike Issued'
+                  : 'Building Collision! Stay on campus roadways — Strike Issued'
               );
             }
           }
@@ -547,7 +629,17 @@ export default function App() {
         className="absolute inset-0 block w-full h-full cursor-crosshair"
       />
 
-      {gameState === 'playing' && (
+      {gameState === 'playing' && isEditing && editorRef.current && (
+        <MapEditor
+          ed={editorRef.current}
+          version={editorVersion}
+          saving={savingMap}
+          onSave={handleSaveMap}
+          onExit={closeEditor}
+        />
+      )}
+
+      {gameState === 'playing' && !isEditing && (
         <HUD
           speedMph={speedMph}
           speedLimit={speedLimit}

@@ -1,8 +1,13 @@
+import json
+import os
+import shutil
+import tempfile
 from pathlib import Path
 import urllib.request
 from fastapi import APIRouter, HTTPException, Response
 from typing import List, Dict, Any
 from app.schemas.map import MapOut
+from app.services import map_loader
 from app.services.map_loader import load_map, list_maps, load_permits, load_difficulty
 
 router = APIRouter(prefix="/maps", tags=["Maps"])
@@ -96,7 +101,32 @@ def get_concept3d_tile(z: int, x: int, y_xyz: int):
         raise HTTPException(status_code=404, detail="Tile not found") from exc
 
 
-# 3. Dynamic map details route (MUST be defined last)
+# 3. Map editor save: validate, back up the old file, then write atomically
+@router.put("/{map_id}", response_model=Dict[str, Any])
+def save_map(map_id: str, map_data: MapOut):
+    if map_data.id != map_id:
+        raise HTTPException(status_code=400, detail="Map id in body does not match URL")
+    file_path = map_loader.MAPS_DIR / f"{map_id}.json"
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail=f"Map '{map_id}' not found")
+    for z in map_data.zones:
+        if len(z.polygon) < 3:
+            raise HTTPException(status_code=422, detail=f"Zone '{z.id}' needs at least 3 points")
+
+    shutil.copy2(file_path, file_path.with_name(file_path.name + ".bak"))
+    fd, tmp = tempfile.mkstemp(dir=file_path.parent, suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(map_data.model_dump(), f, indent=2)
+        os.replace(tmp, file_path)
+    except Exception:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
+    return {"ok": True, "id": map_id, "zones": len(map_data.zones), "lots": len(map_data.lots)}
+
+
+# 4. Dynamic map details route (MUST be defined last)
 @router.get("/{map_id}", response_model=MapOut)
 def get_map_details(map_id: str):
     map_data = load_map(map_id)

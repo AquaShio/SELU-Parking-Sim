@@ -16,3 +16,6 @@ frontend/dist/
 .vscode/
 .zed/
 .DS_Store
+
+# Map editor backups
+*.json.bak

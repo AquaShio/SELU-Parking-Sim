@@ -139,3 +139,40 @@ def test_finish_returns_score_breakdown():
     # Run history lists the finished run
     history = client.get("/api/runs").json()
     assert any(r["id"] == run["id"] and r["result"] == "parked" for r in history)
+
+
+def test_map_editor_save_roundtrip(tmp_path, monkeypatch):
+    import shutil
+    from app.services import map_loader
+
+    shutil.copy(map_loader.MAPS_DIR / "selu_campus.json", tmp_path / "selu_campus.json")
+    monkeypatch.setattr(map_loader, "MAPS_DIR", tmp_path)
+    map_loader._map_cache.clear()
+    map_loader._map_mtime.clear()
+
+    data = client.get("/api/maps/selu_campus").json()
+    assert data["zones"] == []
+    assert data["use_legacy_collision_tiles"] is True
+    assert data["lots"][0].get("permit_type")  # extra fields survive the schema
+
+    data["zones"] = [{"id": "z_test", "type": "solid", "polygon": [[0, 0], [10, 0], [10, 10]], "name": "Test wall"}]
+    data["use_legacy_collision_tiles"] = False
+    resp = client.put("/api/maps/selu_campus", json=data)
+    assert resp.status_code == 200, resp.text
+    assert (tmp_path / "selu_campus.json.bak").exists()
+
+    reloaded = client.get("/api/maps/selu_campus").json()
+    assert reloaded["zones"][0]["id"] == "z_test"
+    assert reloaded["use_legacy_collision_tiles"] is False
+    assert reloaded["lots"][0]["permit_type"] == data["lots"][0]["permit_type"]
+
+    # Bad zone type and too few points are rejected, and the file is left alone
+    bad = dict(data, zones=[{"id": "z_bad", "type": "lava", "polygon": [[0, 0], [1, 1], [2, 0]]}])
+    assert client.put("/api/maps/selu_campus", json=bad).status_code == 422
+    bad = dict(data, zones=[{"id": "z_bad", "type": "grass", "polygon": [[0, 0], [1, 1]]}])
+    assert client.put("/api/maps/selu_campus", json=bad).status_code == 422
+    assert client.put("/api/maps/other_id", json=data).status_code == 400
+    assert client.get("/api/maps/selu_campus").json()["zones"][0]["id"] == "z_test"
+
+    map_loader._map_cache.clear()
+    map_loader._map_mtime.clear()

@@ -17,6 +17,21 @@ export async function fetchMap(mapId = 'selu_campus') {
   return await res.json();
 }
 
+// Map editor: write the edited map back to backend/data/maps/<mapId>.json
+export async function saveMap(mapId, map) {
+  const res = await fetch(`${BASE_URL}/maps/${mapId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(map)
+  });
+  if (!res.ok) {
+    let detail = res.statusText;
+    try { detail = JSON.stringify((await res.json()).detail); } catch { /* keep statusText */ }
+    throw new Error(`Save failed (${res.status}): ${detail}`);
+  }
+  return await res.json();
+}
+
 export async function fetchPermitsConfig() {
   try {
     const res = await fetch(`${BASE_URL}/maps/config/permits`);

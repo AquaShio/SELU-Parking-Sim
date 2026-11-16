@@ -336,52 +336,46 @@ export class VehiclePhysics {
       }
 
       // Trees are on grass landscaping: driving onto grass is handled as an off-road strike below
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//can drive on grass hitbox logic. hitting building logic does not work
-// B. Solid Building Collision (Hard stop on actual buildings only)
-if (environment.checkFootprintCollision) {
-  const check = environment.checkFootprintCollision(this.getPerimeterPoints());
-  
-  // Only trigger a hard physics stop if the reason is a building collision
-  if (check.collided && check.reason === 'building') {
-    this.x = prevX;
-    this.y = prevY;
-    this.angle = prevAngle;
-    this.travelAngle = prevAngle;
 
-    // Try sliding along building wall
-    this.x = prevX + moveDx * 0.5;
-    if (environment.checkFootprintCollision(this.getPerimeterPoints()).collided) {
-      this.x = prevX;
-      this.y = prevY + moveDy * 0.5;
-      if (environment.checkFootprintCollision(this.getPerimeterPoints()).collided) {
-        this.y = prevY;
-        this.speed = -this.speed * 0.22;
-        this.cruiseActive = false;
-      } else {
-        this.speed *= 0.78;
+      // B. Hard walls: buildings and solid zones stop the car; curb/grass areas only flag off-road (C)
+      if (environment.checkFootprintCollision) {
+        const isWall = (c) => c.collided && (c.reason === 'building' || c.reason === 'solid');
+        const check = environment.checkFootprintCollision(this.getPerimeterPoints());
+
+        if (isWall(check)) {
+          this.x = prevX;
+          this.y = prevY;
+          this.angle = prevAngle;
+          this.travelAngle = prevAngle;
+
+          // Try sliding along the wall on one axis, else bounce back
+          this.x = prevX + moveDx * 0.5;
+          if (isWall(environment.checkFootprintCollision(this.getPerimeterPoints()))) {
+            this.x = prevX;
+            this.y = prevY + moveDy * 0.5;
+            if (isWall(environment.checkFootprintCollision(this.getPerimeterPoints()))) {
+              this.y = prevY;
+              this.speed = -this.speed * 0.22;
+              this.cruiseActive = false;
+            } else {
+              this.speed *= 0.78;
+            }
+          } else {
+            this.speed *= 0.78;
+          }
+
+          if (!collisionEvent && impactMph >= 3.5) {
+            collisionEvent = {
+              type: 'building',
+              reason: check.reason,
+              impactMph,
+              x: check.point ? check.point.x : this.x,
+              y: check.point ? check.point.y : this.y
+            };
+          }
+          break;
+        }
       }
-    } else {
-      this.speed *= 0.78;
-    }
-
-    if (!collisionEvent && impactMph >= 3.5) {
-      collisionEvent = {
-        type: 'building',
-        impactMph,
-        x: check.point ? check.point.x : this.x,
-        y: check.point ? check.point.y : this.y
-      };
-    }
-    break;
-  }
-}
-//
-//End of drive on gras hitbox logic
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//
-//
-
     }
 
     // C. Grass / off-road surface: drivable, but flagged so a strike can be issued

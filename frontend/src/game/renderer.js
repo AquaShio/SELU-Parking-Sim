@@ -1,4 +1,5 @@
 import { buildOBB } from './physics';
+import { drawEditorOverlay } from '../editor/editorOverlay';
 
 // Southeastern Louisiana University Official Palette
 const COLORS = {
@@ -124,21 +125,77 @@ export class GameRenderer {
     };
     this.onLightning = null; // App hooks thunder audio here
 
-    // --- DEBUG OVERLAY TOGGLE ---
+    // Legacy red collision tiles drawn over the map (toggled from the map editor's layer list)
     this.showDebugOverlay = false;
+    this.solidShapes = [];
+    this.grassShapes = [];
+  }
 
-    window.addEventListener('keydown', (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-      if (e.key === '=' || e.key === '=') {
-        this.showDebugOverlay = !this.showDebugOverlay;
-        console.log(`[Debug Overlay] ${this.showDebugOverlay ? 'ENABLED' : 'DISABLED'}`);
+  // Solid and grass polygons with bounding boxes, rebuilt whenever the map changes
+  buildCollisionIndex(map) {
+    const withBox = (poly, extra) => {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const [x, y] of poly) {
+        if (x < minX) minX = x; if (y < minY) minY = y;
+        if (x > maxX) maxX = x; if (y > maxY) maxY = y;
       }
-    });
+      return { poly, minX, minY, maxX, maxY, ...extra };
+    };
+    this.solidShapes = [];
+    this.grassShapes = [];
+    // Only traced outlines are solid: untraced buildings just have a 90x70 label box that often sits on a road
+    for (const b of map?.buildings || []) {
+      if (b.polygon && b.polygon.length >= 3) this.solidShapes.push(withBox(b.polygon, { reason: 'building', name: b.name }));
+    }
+    for (const zn of map?.zones || []) {
+      if (!zn.polygon || zn.polygon.length < 3) continue;
+      if (zn.type === 'solid') this.solidShapes.push(withBox(zn.polygon, { reason: 'solid', name: zn.name }));
+      else if (zn.type === 'grass') this.grassShapes.push(withBox(zn.polygon, {}));
+    }
+  }
+
+  // Swap in an edited map without resetting the camera or the player's car
+  refreshMap(map, difficulty = 1) {
+    const cam = { ...this.camera };
+    this.initEntities(map, difficulty, { x: cam.x, y: cam.y });
+    Object.assign(this.camera, cam);
+  }
+
+  screenToWorld(sx, sy) {
+    const { width, height } = this.canvas;
+    const dx = (sx - width / 2) / this.camera.zoom;
+    const dy = (sy - height / 2) / this.camera.zoom;
+    const c = Math.cos(-this.camera.rotation), s = Math.sin(-this.camera.rotation);
+    return [this.camera.x + dx * c - dy * s, this.camera.y + dx * s + dy * c];
+  }
+
+  // Map editor view: north-up free camera, map tiles, then the editable layers
+  renderEditor(ed, vehicle = null) {
+    const { ctx, canvas } = this;
+    const width = canvas.width, height = canvas.height;
+    this.camera.x = ed.cam.x;
+    this.camera.y = ed.cam.y;
+    this.camera.zoom = ed.cam.zoom;
+    this.camera.rotation = 0;
+    this.camera.shake = 0;
+    this.camera.viewRadius = Math.hypot(width, height) / 2 / ed.cam.zoom + 40;
+    this.showDebugOverlay = ed.layers.legacy;
+
+    ctx.save();
+    ctx.clearRect(0, 0, width, height);
+    ctx.translate(width / 2, height / 2);
+    ctx.scale(ed.cam.zoom, ed.cam.zoom);
+    ctx.translate(-ed.cam.x, -ed.cam.y);
+    this.renderConcept3DTiles(ed.map, width, height);
+    const hw = width / 2 / ed.cam.zoom, hh = height / 2 / ed.cam.zoom;
+    drawEditorOverlay(ctx, ed, { minX: ed.cam.x - hw, maxX: ed.cam.x + hw, minY: ed.cam.y - hh, maxY: ed.cam.y + hh });
+    if (vehicle) this.renderPlayerVehicle(vehicle, 0);
+    ctx.restore();
   }
 
   initEntities(map, difficulty = 1, spawnPoint = null) {
     this.map = map;
+    this.buildCollisionIndex(map);
     this.tireTracks = [];
     this.sparks = [];
     this.leaves = [];
@@ -356,15 +413,25 @@ export class GameRenderer {
     }
   }
 
+  // Points on grass / off-road surface (drivable, but costs a strike): grass zones + legacy red tiles
   countOffroadPoints(points) {
     if (!points || !Array.isArray(points)) return 0;
+    const useLegacy = this.map?.use_legacy_collision_tiles !== false;
     let count = 0;
     for (const pt of points) {
-      if (this.checkPixelCollisionTile(pt.x, pt.y)) {
+      if (this.pointInShapes(pt.x, pt.y, this.grassShapes) || (useLegacy && this.checkPixelCollisionTile(pt.x, pt.y))) {
         count++;
       }
     }
     return count;
+  }
+
+  pointInShapes(x, y, shapes) {
+    for (const sh of shapes) {
+      if (x < sh.minX || x > sh.maxX || y < sh.minY || y > sh.maxY) continue;
+      if (pointInPoly(x, y, sh.poly)) return sh;
+    }
+    return null;
   }
 
   isWorldPointDrivable(wx, wy) {
@@ -423,23 +490,18 @@ export class GameRenderer {
   checkFootprintCollision(perimeterPoints) {
     if (!this.map) return { collided: false };
 
-    // 1. Building polygons (Tyler's addition)
-    if (this.map.buildings) {
-      for (const b of this.map.buildings) {
-        if (b.polygon && b.polygon.length >= 3) {
-          for (const pt of perimeterPoints) {
-            if (pointInPoly(pt.x, pt.y, b.polygon)) {
-              return { collided: true, reason: 'building', point: pt, buildingName: b.name };
-            }
-          }
-        }
-      }
+    // 1. Hard walls: traced building outlines and solid zones
+    for (const pt of perimeterPoints) {
+      const hit = this.pointInShapes(pt.x, pt.y, this.solidShapes);
+      if (hit) return { collided: true, reason: hit.reason, point: pt, buildingName: hit.name };
     }
 
-    // 2. Pixel collision mask checking (Your legacy logic)
-    for (const pt of perimeterPoints) {
-      if (this.checkPixelCollisionTile(pt.x, pt.y)) {
-        return { collided: true, reason: 'curb_or_grass', point: pt };
+    // 2. Legacy red collision tiles count as curb/grass (drivable, off-road strike), not walls
+    if (this.map.use_legacy_collision_tiles !== false) {
+      for (const pt of perimeterPoints) {
+        if (this.checkPixelCollisionTile(pt.x, pt.y)) {
+          return { collided: true, reason: 'curb_or_grass', point: pt };
+        }
       }
     }
 
@@ -805,6 +867,7 @@ export class GameRenderer {
     ctx.scale(this.camera.zoom, this.camera.zoom);
     ctx.translate(-this.camera.x, -this.camera.y);
 
+    this.showDebugOverlay = false; // legacy red tiles only show inside the map editor
     this.renderConcept3DTiles(map, width, height);
     this.renderTireTracks();
 

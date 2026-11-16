@@ -34907,8 +34907,8 @@
       "description": "Your CMPS 4550 lecture starts in 2 minutes! Find a legal stall matching your permit near Fayard Hall or Anzalone Hall.",
       "time_limit_s": 120,
       "spawn": {
-        "x": 9248.7,
-        "y": 9788.8,
+        "x": 9245.4,
+        "y": 9672.8,
         "heading": 50.0
       }
     },
@@ -135981,91 +135981,91 @@
       "id": "loop_perimeter_cw_0",
       "route_id": "loop_perimeter_cw",
       "color": "#e2e8f0",
-      "speed": 72,
+      "speed": 72.0,
       "start_prog": 0.02
     },
     {
       "id": "loop_perimeter_cw_1",
       "route_id": "loop_perimeter_cw",
       "color": "#1e293b",
-      "speed": 79,
+      "speed": 79.0,
       "start_prog": 0.27
     },
     {
       "id": "loop_perimeter_cw_2",
       "route_id": "loop_perimeter_cw",
       "color": "#dc2626",
-      "speed": 74,
+      "speed": 74.0,
       "start_prog": 0.52
     },
     {
       "id": "loop_perimeter_cw_3",
       "route_id": "loop_perimeter_cw",
       "color": "#94a3b8",
-      "speed": 81,
+      "speed": 81.0,
       "start_prog": 0.77
     },
     {
       "id": "loop_perimeter_ccw_0",
       "route_id": "loop_perimeter_ccw",
       "color": "#f8fafc",
-      "speed": 72,
+      "speed": 72.0,
       "start_prog": 0.12
     },
     {
       "id": "loop_perimeter_ccw_1",
       "route_id": "loop_perimeter_ccw",
       "color": "#b45309",
-      "speed": 79,
+      "speed": 79.0,
       "start_prog": 0.45
     },
     {
       "id": "loop_perimeter_ccw_2",
       "route_id": "loop_perimeter_ccw",
       "color": "#475569",
-      "speed": 74,
+      "speed": 74.0,
       "start_prog": 0.8
     },
     {
       "id": "loop_mane_st_0",
       "route_id": "loop_mane_st",
       "color": "#15803d",
-      "speed": 72,
+      "speed": 72.0,
       "start_prog": 0.2
     },
     {
       "id": "loop_mane_st_1",
       "route_id": "loop_mane_st",
       "color": "#7c2d12",
-      "speed": 79,
+      "speed": 79.0,
       "start_prog": 0.7
     },
     {
       "id": "loop_north_campus_0",
       "route_id": "loop_north_campus",
       "color": "#d97706",
-      "speed": 72,
+      "speed": 72.0,
       "start_prog": 0.1
     },
     {
       "id": "loop_north_campus_1",
       "route_id": "loop_north_campus",
       "color": "#64748b",
-      "speed": 79,
+      "speed": 79.0,
       "start_prog": 0.6
     },
     {
       "id": "loop_university_center_0",
       "route_id": "loop_university_center",
       "color": "#0f766e",
-      "speed": 72,
+      "speed": 72.0,
       "start_prog": 0.15
     },
     {
       "id": "loop_university_center_1",
       "route_id": "loop_university_center",
       "color": "#334155",
-      "speed": 79,
+      "speed": 79.0,
       "start_prog": 0.65
     }
   ],
@@ -142117,5 +142117,7 @@
       "speed": 23.7,
       "shirt": "#00573D"
     }
-  ]
+  ],
+  "zones": [],
+  "use_legacy_collision_tiles": true
 }

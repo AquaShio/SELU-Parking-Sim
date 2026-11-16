@@ -1,5 +1,10 @@
-from typing import List, Optional
-from pydantic import BaseModel
+from typing import List, Literal, Optional
+from pydantic import BaseModel as _PydanticBase, ConfigDict
+
+
+class BaseModel(_PydanticBase):
+    # Keep unknown fields so the map editor never silently drops data on save
+    model_config = ConfigDict(extra="allow")
 
 
 class Stall(BaseModel):
@@ -95,6 +100,14 @@ class PedestrianPath(BaseModel):
     shirt: str = "#00573D"
 
 
+class Zone(BaseModel):
+    """Editable surface area. grass = drivable but costs an off-road strike; solid = hard wall."""
+    id: str
+    type: Literal["grass", "solid"]
+    polygon: List[List[float]]  # [[x, y], ...], at least 3 points
+    name: str = ""
+
+
 class MapOut(BaseModel):
     id: str
     name: str
@@ -111,8 +124,11 @@ class MapOut(BaseModel):
     speed_zones: List[SpeedZone] = []
     crosswalks: List[Crosswalk] = []
     buildings: List[Building] = []
-    trees: List[Tree] = []
     destinations: List[Destination] = []
+    trees: List[Tree] = []
     traffic_routes: List[TrafficRoute] = []
     traffic_cars: List[TrafficCar] = []
     pedestrian_paths: List[PedestrianPath] = []
+    zones: List[Zone] = []
+    # Hand-painted red .webp collision tiles; turn off once zones cover those areas
+    use_legacy_collision_tiles: bool = True
