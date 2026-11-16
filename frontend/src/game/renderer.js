@@ -76,8 +76,9 @@ export class GameRenderer {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
 
-    // Tyler's Dynamic Rotation Camera System
+    // Both camera modes follow the car; static mode keeps north up.
     this.camera = {
+      mode: 'dynamic',
       x: 9248.7,
       y: 9788.8,
       zoom: 1.65,
@@ -784,14 +785,18 @@ export class GameRenderer {
     this.camera.x += (vehicle.x - this.camera.x) * 0.16;
     this.camera.y += (vehicle.y - this.camera.y) * 0.16;
 
-    // Tyler's Rotating Camera Calculation
-    if (this.camera.heading === null) {
-      this.camera.heading = vehicle.angle;
+    if (this.camera.mode === 'static') {
+      this.camera.rotation = 0;
+      this.camera.heading = null;
     } else {
-      const headingDiff = Math.atan2(Math.sin(vehicle.angle - this.camera.heading), Math.cos(vehicle.angle - this.camera.heading));
-      this.camera.heading += headingDiff * 0.045;
+      if (this.camera.heading === null) {
+        this.camera.heading = vehicle.angle;
+      } else {
+        const headingDiff = Math.atan2(Math.sin(vehicle.angle - this.camera.heading), Math.cos(vehicle.angle - this.camera.heading));
+        this.camera.heading += headingDiff * 0.045;
+      }
+      this.camera.rotation = -Math.PI / 2 - this.camera.heading;
     }
-    this.camera.rotation = -Math.PI / 2 - this.camera.heading;
     this.camera.viewRadius = Math.hypot(width, height) / 2 / this.camera.zoom + 40;
 
     const shakeX = this.camera.shake > 0 ? (Math.random() - 0.5) * this.camera.shake : 0;

@@ -39,6 +39,7 @@ export default function App() {
   const [parkingProgress, setParkingProgress] = useState(0);
   const [alertToast, setAlertToast] = useState(null);
   const [cameraZoom, setCameraZoom] = useState(1.65);
+  const [cameraMode, setCameraMode] = useState('dynamic');
   const [isCruiseActive, setIsCruiseActive] = useState(false);
   const [cruiseSpeedMph, setCruiseSpeedMph] = useState(0);
   const [isPrecisionMode, setIsPrecisionMode] = useState(false);
@@ -110,6 +111,17 @@ export default function App() {
       showToast('Cruise Control Disengaged', 'warning', 1200);
     }
   }, [showToast]);
+
+  useEffect(() => {
+    if (rendererRef.current) {
+      rendererRef.current.camera.mode = cameraMode;
+      rendererRef.current.camera.heading = null;
+    }
+  }, [cameraMode]);
+
+  const handleToggleCameraMode = useCallback(() => {
+    setCameraMode(prev => prev === 'dynamic' ? 'static' : 'dynamic');
+  }, []);
 
   const handleCycleZoom = useCallback(() => {
     const levels = [1.3, 1.65, 2.1];
@@ -224,6 +236,7 @@ export default function App() {
     }
     if (rendererRef.current && mapData) {
       rendererRef.current.camera.zoom = cameraZoom;
+      rendererRef.current.camera.mode = cameraMode;
       rendererRef.current.initEntities(mapData, difficulty, sp);
     }
     if (difficulty === 3) {
@@ -497,7 +510,8 @@ export default function App() {
             const by = destBldg.rect[1] + destBldg.rect[3] / 2;
             const distPx = Math.hypot(bx - v.x, by - v.y);
             const targetAngle = Math.atan2(by - v.y, bx - v.x);
-            const relAngle = ((targetAngle - v.angle) * 180 / Math.PI + 360) % 360;
+            const cameraRotation = rendererRef.current?.camera.rotation ?? (-Math.PI / 2 - v.angle);
+            const relAngle = ((targetAngle + cameraRotation + Math.PI / 2) * 180 / Math.PI + 360) % 360;
 
             setDistanceToDest(distPx * 0.422);
             setDestAngleDeg(relAngle);
@@ -563,6 +577,8 @@ export default function App() {
           alertToast={alertToast}
           cameraZoom={cameraZoom}
           onCycleZoom={handleCycleZoom}
+          cameraMode={cameraMode}
+          onToggleCameraMode={handleToggleCameraMode}
           onResetVehicle={handleResetVehicle}
           isCruiseActive={isCruiseActive}
           cruiseSpeedMph={cruiseSpeedMph}

@@ -16,6 +16,8 @@ export function HUD({
   alertToast,
   cameraZoom = 1.65,
   onCycleZoom,
+  cameraMode = 'dynamic',
+  onToggleCameraMode,
   onResetVehicle,
   isMuted,
   onToggleMute,
@@ -106,6 +108,19 @@ export function HUD({
               ))}
             </div>
           </div>
+
+          {onToggleCameraMode && (
+            <button
+              onClick={onToggleCameraMode}
+              className="selu-btn-secondary px-2.5 py-2 rounded-xl flex items-center gap-1 text-xs font-bold text-amber-400"
+              title={cameraMode === 'static' ? 'Camera follows the car with north up. Switch to dynamic rotation.' : 'Camera follows and rotates with the car. Switch to static north-up view.'}
+              aria-label="Static camera (north-up)"
+              aria-pressed={cameraMode === 'static'}
+            >
+              <Navigation className="w-4 h-4" />
+              <span>{cameraMode === 'static' ? 'Static' : 'Dynamic'}</span>
+            </button>
+          )}
 
           {onCycleZoom && (
             <button
