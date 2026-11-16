@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { fetchMap, fetchPlayer, fetchPermitsConfig, fetchDifficultyConfig, startRun, finishRun, logEvent } from './services/api';
+import { fetchMap, fetchPlayer, fetchPermitsConfig, fetchDifficultyConfig, fetchRecentRuns, startRun, finishRun, logEvent } from './services/api';
 import { VehiclePhysics } from './game/physics';
 import { GameRenderer } from './game/renderer';
 import { TelemetryCollector } from './game/telemetryCollector';
@@ -18,6 +18,7 @@ export default function App() {
   const [gameState, setGameState] = useState('menu'); // 'menu' | 'playing' | 'debrief'
   const [mapData, setMapData] = useState(null);
   const [playerStats, setPlayerStats] = useState(null);
+  const [recentRuns, setRecentRuns] = useState([]);
   const [permitsConfig, setPermitsConfig] = useState(null);
   const [difficultyConfig, setDifficultyConfig] = useState(null);
 
@@ -65,13 +66,15 @@ export default function App() {
   useEffect(() => {
     async function initData() {
       try {
-        const [p, m, perm, diff] = await Promise.all([
+        const [p, m, perm, diff, runs] = await Promise.all([
           fetchPlayer(),
           fetchMap('selu_campus'),
           fetchPermitsConfig(),
-          fetchDifficultyConfig()
+          fetchDifficultyConfig(),
+          fetchRecentRuns()
         ]);
         setPlayerStats(p);
+        setRecentRuns(runs);
         setMapData(m);
         setPermitsConfig(perm);
         setDifficultyConfig(diff);
@@ -211,13 +214,20 @@ export default function App() {
 
     const sp = destination?.spawn || mapData?.spawn || { x: 9248.7, y: 9788.8, heading: 50 };
     vehicleRef.current.reset(sp.x, sp.y, sp.heading);
+    vehicleRef.current.wet = difficulty === 3;
 
     if (!rendererRef.current && canvasRef.current) {
       rendererRef.current = new GameRenderer(canvasRef.current);
     }
+    if (rendererRef.current) {
+      rendererRef.current.onLightning = () => sounds.playThunder();
+    }
     if (rendererRef.current && mapData) {
       rendererRef.current.camera.zoom = cameraZoom;
       rendererRef.current.initEntities(mapData, difficulty, sp);
+    }
+    if (difficulty === 3) {
+      showToast('Storm warning: wet roads — brake early, the car will slide', 'warning', 3500);
     }
 
     const run = await startRun({
@@ -237,6 +247,7 @@ export default function App() {
   // End Run callback
   const handleEndRun = useCallback(async (result, stallResult = null) => {
     sounds.stopEngine();
+    sounds.stopRain();
     const timeUsed = (activeDestinationRef.current?.time_limit_s || 120) - timeRemainingRef.current;
 
     await telemetryRef.current.flush();
@@ -260,8 +271,9 @@ export default function App() {
       setFinishedRunData(finished);
     }
 
-    const updatedPlayer = await fetchPlayer();
+    const [updatedPlayer, runs] = await Promise.all([fetchPlayer(), fetchRecentRuns()]);
     setPlayerStats(updatedPlayer);
+    setRecentRuns(runs);
 
     setGameState('debrief');
   }, []);
@@ -270,8 +282,10 @@ export default function App() {
   useEffect(() => {
     if (gameState !== 'playing') {
       sounds.stopEngine();
+      sounds.stopRain();
       return;
     }
+    if (activeDifficulty === 3) sounds.startRain();
 
     let animId;
     let lastTime = performance.now();
@@ -516,6 +530,7 @@ export default function App() {
     return () => {
       cancelAnimationFrame(animId);
       sounds.stopEngine();
+      sounds.stopRain();
     };
   }, [gameState, mapData, activeDifficulty, activePermit, activeDestination, activeRunId, handleEndRun, showToast]);
 
@@ -567,6 +582,7 @@ export default function App() {
           permitsConfig={permitsConfig}
           difficultyConfig={difficultyConfig}
           playerStats={playerStats}
+          recentRuns={recentRuns}
           onStartMission={handleStartMission}
         />
       )}

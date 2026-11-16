@@ -9,13 +9,23 @@ import {
   ArrowRight,
   ArrowLeft,
   Check,
+  History,
 } from "lucide-react";
+
+const RESULT_LABELS = {
+  parked: { text: "Parked", cls: "text-emerald-300" },
+  timeout: { text: "Timed Out", cls: "text-amber-300" },
+  strikeout: { text: "3 Strikes", cls: "text-red-400" },
+  pedestrian_hit: { text: "Ped. Struck", cls: "text-red-400" },
+  game_over: { text: "Game Over", cls: "text-red-400" },
+};
 
 export function MissionSelect({
   mapData,
   permitsConfig,
   difficultyConfig,
   playerStats,
+  recentRuns = [],
   onStartMission,
 }) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -102,7 +112,7 @@ export function MissionSelect({
     {
       level: 3,
       name: "Final Exam Rush",
-      desc: "72% lot fullness, heavy traffic & tighter clock",
+      desc: "72% full, heavy traffic, thunderstorm & slick roads",
     },
   ];
 
@@ -185,6 +195,44 @@ export function MissionSelect({
               </div>
             </div>
           </div>
+
+          {/* Recent Runs (pulled from the backend run history) */}
+          {recentRuns.length > 0 && (
+            <div className="bg-emerald-950/70 border border-amber-400/30 rounded-2xl p-5 flex flex-col gap-2.5 shadow-lg">
+              <div className="text-[11px] uppercase font-bold text-amber-400 tracking-widest flex items-center gap-1.5">
+                <History className="w-3.5 h-3.5" />
+                Recent Runs
+              </div>
+              {recentRuns.filter((r) => r.result).slice(0, 5).map((run) => {
+                const resultInfo = RESULT_LABELS[run.result] || { text: run.result, cls: "text-slate-300" };
+                const dest = destinations.find((d) => d.building_id === run.destination_building);
+                const isBest = playerStats?.best_score > 0 && run.score === playerStats.best_score;
+                return (
+                  <div
+                    key={run.id}
+                    className="flex items-center justify-between gap-3 bg-emerald-950/80 px-3 py-2 rounded-lg border border-emerald-700/50 text-[11px]"
+                  >
+                    <div className="min-w-0">
+                      <div className={`font-bold uppercase tracking-wider ${resultInfo.cls}`}>
+                        {resultInfo.text}
+                        <span className="text-slate-400 font-semibold normal-case tracking-normal">
+                          {" "}· Lvl {run.difficulty}
+                          {run.time_to_park ? ` · ${Math.round(run.time_to_park)}s` : ""}
+                        </span>
+                      </div>
+                      <div className="text-slate-300 truncate">
+                        {dest ? dest.name.replace(/.*\((.*)\).*/, "$1") : run.destination_building || "Campus"}
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="font-bold font-chakra text-sm text-amber-400">{run.score} pts</div>
+                      {isBest && <div className="text-[9px] uppercase font-bold text-emerald-300">Best</div>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Driving Controls Reference */}
           <div className="bg-emerald-950/70 border border-emerald-500/30 rounded-2xl p-5 flex flex-col gap-3 shadow-lg">

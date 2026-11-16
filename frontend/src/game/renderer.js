@@ -114,6 +114,16 @@ export class GameRenderer {
     this.sparks = [];
     this.leaves = [];
 
+    // Weather (Level 3 "Rainy Exam Day Panic")
+    this.weather = {
+      raining: false,
+      drops: [],
+      splashes: [],
+      lightning: 0,
+      nextLightning: 8
+    };
+    this.onLightning = null; // App hooks thunder audio here
+
     // --- DEBUG OVERLAY TOGGLE ---
     this.showDebugOverlay = false;
 
@@ -140,6 +150,12 @@ export class GameRenderer {
     this.camera.x = sx;
     this.camera.y = sy;
     this.camera.heading = null;
+
+    this.weather.raining = difficulty === 3;
+    this.weather.drops = [];
+    this.weather.splashes = [];
+    this.weather.lightning = 0;
+    this.weather.nextLightning = 6 + Math.random() * 6;
 
     // Populate spatial hash grid for trees
     this.treeGrid.clear();
@@ -603,6 +619,8 @@ export class GameRenderer {
       if (sp.life <= 0) this.sparks.splice(i, 1);
     }
 
+    if (this.weather.raining) this.updateRain(dt, vehicle);
+
     for (let i = this.leaves.length - 1; i >= 0; i--) {
       const lf = this.leaves[i];
       lf.x += lf.vx * dt;
@@ -801,10 +819,295 @@ export class GameRenderer {
       this.renderBuildingLabels(map.buildings, vehicle, activeDestination);
     }
 
+    if (this.weather.raining) {
+      // Storm overcast: darken the world in screen space, then light it back up with headlights
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = 'rgba(10, 18, 38, 0.42)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.restore();
+      this.renderHeadlights(vehicle);
+    }
+
     this.renderPlayerVehicle(vehicle, parkingProgress);
     this.renderSparks();
     this.renderLeaves();
 
+    ctx.restore();
+
+    if (this.weather.raining) this.renderRain(width, height);
+    this.renderMinimap(map, vehicle, activeDestination, width, height);
+  }
+
+  updateRain(dt, vehicle) {
+    const w = this.weather;
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+    const target = Math.round((width * height) / 4200);
+
+    // Car motion pushes the rain toward the bottom of the (heading-up) screen
+    const carPush = vehicle ? Math.max(0, vehicle.speed) * 1.4 : 0;
+
+    while (w.drops.length < target) {
+      w.drops.push({
+        x: Math.random() * (width + 200) - 100,
+        y: Math.random() * height,
+        len: 10 + Math.random() * 18,
+        speed: 700 + Math.random() * 500,
+        alpha: 0.15 + Math.random() * 0.3
+      });
+    }
+    if (w.drops.length > target) w.drops.length = target;
+
+    for (const d of w.drops) {
+      d.y += (d.speed + carPush) * dt;
+      d.x -= d.speed * 0.18 * dt;
+      if (d.y > height + 30 || d.x < -100) {
+        d.y = -30 - Math.random() * 60;
+        d.x = Math.random() * (width + 200);
+      }
+    }
+
+    for (let i = 0; i < Math.round(60 * dt * 10); i++) {
+      if (Math.random() < 0.5) {
+        w.splashes.push({ x: Math.random() * width, y: Math.random() * height, r: 1, life: 0.35 });
+      }
+    }
+    for (let i = w.splashes.length - 1; i >= 0; i--) {
+      const sp = w.splashes[i];
+      sp.r += 22 * dt;
+      sp.life -= dt;
+      if (sp.life <= 0) w.splashes.splice(i, 1);
+    }
+
+    w.lightning = Math.max(0, w.lightning - dt * 2.2);
+    w.nextLightning -= dt;
+    if (w.nextLightning <= 0) {
+      w.lightning = 1;
+      w.nextLightning = 10 + Math.random() * 14;
+      if (this.onLightning) this.onLightning();
+    }
+  }
+
+  renderHeadlights(v) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.translate(v.x, v.y);
+    ctx.rotate(v.angle);
+    ctx.globalCompositeOperation = 'lighter';
+    const reach = 170;
+    const grad = ctx.createRadialGradient(14, 0, 4, 14, 0, reach);
+    grad.addColorStop(0, 'rgba(255, 236, 180, 0.32)');
+    grad.addColorStop(0.5, 'rgba(255, 236, 180, 0.12)');
+    grad.addColorStop(1, 'rgba(255, 236, 180, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(14, -6);
+    ctx.lineTo(14 + reach, -reach * 0.42);
+    ctx.lineTo(14 + reach, reach * 0.42);
+    ctx.lineTo(14, 6);
+    ctx.closePath();
+    ctx.fill();
+
+    // Red tail-light glow on the wet road
+    const tail = ctx.createRadialGradient(-16, 0, 1, -16, 0, 26);
+    tail.addColorStop(0, v.isBraking ? 'rgba(255, 40, 40, 0.45)' : 'rgba(255, 40, 40, 0.18)');
+    tail.addColorStop(1, 'rgba(255, 40, 40, 0)');
+    ctx.fillStyle = tail;
+    ctx.beginPath();
+    ctx.arc(-16, 0, 26, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  renderRain(width, height) {
+    const ctx = this.ctx;
+    const w = this.weather;
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 1.2;
+    for (const d of w.drops) {
+      ctx.strokeStyle = `rgba(190, 210, 240, ${d.alpha})`;
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x + d.len * 0.18, d.y - d.len);
+      ctx.stroke();
+    }
+    ctx.lineWidth = 1;
+    for (const sp of w.splashes) {
+      ctx.strokeStyle = `rgba(200, 220, 255, ${(sp.life / 0.35) * 0.35})`;
+      ctx.beginPath();
+      ctx.ellipse(sp.x, sp.y, sp.r, sp.r * 0.45, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    if (w.lightning > 0) {
+      // Double-flicker flash
+      const flicker = w.lightning > 0.7 || (w.lightning > 0.35 && w.lightning < 0.5) ? w.lightning : w.lightning * 0.3;
+      ctx.fillStyle = `rgba(230, 236, 255, ${flicker * 0.55})`;
+      ctx.fillRect(0, 0, width, height);
+    }
+    ctx.restore();
+  }
+
+  renderMinimap(map, vehicle, activeDestination, width, height) {
+    if (!map) return;
+    const ctx = this.ctx;
+    const R = Math.round(Math.min(95, width * 0.11, height * 0.15));
+    if (R < 50) return;
+    const cx = width - 16 - R;
+    const cy = height / 2 - 20;
+    const range = 1700; // world px from car to minimap rim
+    const scale = R / range;
+    const originX = map.tile_origin_x || 130375;
+    const originY = map.tile_origin_y || 215420;
+
+    const destBldg = activeDestination && map.buildings
+      ? map.buildings.find(b => b.id === activeDestination.building_id)
+      : null;
+    const targetLotIds = new Set(activeDestination?.target_lot_ids || []);
+
+    ctx.save();
+    // Frame
+    ctx.beginPath();
+    ctx.arc(cx, cy, R + 4, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(255, 199, 44, 0.75)';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.clip();
+
+    // World layer, rotated to match the heading-up camera
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(this.camera.rotation);
+    ctx.scale(scale, scale);
+    ctx.translate(-vehicle.x, -vehicle.y);
+
+    ctx.fillStyle = COLORS.grassFallback;
+    ctx.fillRect(vehicle.x - range * 1.5, vehicle.y - range * 1.5, range * 3, range * 3);
+
+    const minTx = Math.floor(((vehicle.x - range * 1.5) / 512 + originX) / 4);
+    const maxTx = Math.floor(((vehicle.x + range * 1.5) / 512 + originX) / 4);
+    const minTy = Math.floor(((vehicle.y - range * 1.5) / 512 + originY) / 4);
+    const maxTy = Math.floor(((vehicle.y + range * 1.5) / 512 + originY) / 4);
+    ctx.globalAlpha = 0.8;
+    for (let tx = minTx; tx <= maxTx; tx++) {
+      for (let ty = minTy; ty <= maxTy; ty++) {
+        const entry = this.getOrLoadZ17Tile(tx, ty);
+        if (entry && entry.loaded) {
+          ctx.drawImage(entry.img, (tx * 4 - originX) * 512, (ty * 4 - originY) * 512, 2048, 2048);
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    // Target lots
+    if (map.lots && targetLotIds.size) {
+      const pulse = 0.35 + 0.2 * Math.sin(performance.now() / 300);
+      ctx.fillStyle = `rgba(16, 185, 129, ${pulse})`;
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.95)';
+      ctx.lineWidth = 3 / scale;
+      for (const lot of map.lots) {
+        if (!targetLotIds.has(lot.id) || !lot.polygon) continue;
+        ctx.beginPath();
+        lot.polygon.forEach(([px, py], i) => (i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+    }
+
+    // Destination building
+    if (destBldg) {
+      const [bx, by, bw, bh] = destBldg.rect;
+      ctx.fillStyle = '#FFC72C';
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2 / scale;
+      ctx.strokeRect(bx, by, bw, bh);
+    }
+
+    // Traffic & pedestrians
+    ctx.fillStyle = '#ef4444';
+    for (const tc of this.trafficCars) {
+      ctx.beginPath();
+      ctx.arc(tc.x, tc.y, 3.2 / scale, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#f8fafc';
+    for (const ped of this.pedestrians) {
+      ctx.beginPath();
+      ctx.arc(ped.x, ped.y, 1.8 / scale, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Player arrow
+    ctx.save();
+    ctx.translate(vehicle.x, vehicle.y);
+    ctx.rotate(vehicle.angle);
+    ctx.scale(1 / scale, 1 / scale);
+    ctx.fillStyle = '#FFC72C';
+    ctx.strokeStyle = '#00573D';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(8, 0);
+    ctx.lineTo(-6, -5.5);
+    ctx.lineTo(-3, 0);
+    ctx.lineTo(-6, 5.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.restore(); // world layer
+    ctx.restore(); // clip
+
+    // Off-screen destination: gold pip on the rim pointing toward it
+    if (destBldg) {
+      const bx = destBldg.rect[0] + destBldg.rect[2] / 2;
+      const by = destBldg.rect[1] + destBldg.rect[3] / 2;
+      const dist = Math.hypot(bx - vehicle.x, by - vehicle.y);
+      if (dist * scale > R - 6) {
+        const a = Math.atan2(by - vehicle.y, bx - vehicle.x) + this.camera.rotation;
+        ctx.save();
+        ctx.translate(cx + Math.cos(a) * (R - 2), cy + Math.sin(a) * (R - 2));
+        ctx.rotate(a);
+        ctx.fillStyle = '#FFC72C';
+        ctx.strokeStyle = '#020617';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(6, 0);
+        ctx.lineTo(-6, -6);
+        ctx.lineTo(-6, 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    // North marker
+    const na = -Math.PI / 2 + this.camera.rotation;
+    ctx.save();
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const nx = cx + Math.cos(na) * (R + 4);
+    const ny = cy + Math.sin(na) * (R + 4);
+    ctx.fillStyle = '#020617';
+    ctx.beginPath();
+    ctx.arc(nx, ny, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#FFC72C';
+    ctx.fillText('N', nx, ny + 0.5);
+
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillStyle = 'rgba(255, 199, 44, 0.9)';
+    ctx.fillText('CAMPUS RADAR', cx, cy + R + 16);
     ctx.restore();
   }
 
